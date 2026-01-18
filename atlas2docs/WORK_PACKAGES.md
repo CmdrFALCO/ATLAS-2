@@ -87,6 +87,7 @@ Deliverables:
 ## WP-07: Tecton Demo
 Goal: Parametric configurator with comparisons.
 Entry: WP-06 complete.
+Status: Complete.
 Exit criteria:
 - Placeholder model or primitive-based module renders.
 - Parameter UI updates the model state.

@@ -3,3 +3,4 @@ export { BeaconModule } from './BeaconModule';
 export { MnemosyneModule } from './MnemosyneModule';
 export { StubModule } from './StubModule';
 export { ThemisModule } from './ThemisModule';
+export { TectonModule } from './TectonModule';
