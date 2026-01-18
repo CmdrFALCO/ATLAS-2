@@ -1,11 +1,14 @@
 import * as THREE from 'three';
 import type { ModuleContext } from '../modules/AtlasModule';
+import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
+import { InteractionSystem } from './InteractionSystem';
 import { ModuleLoader } from './ModuleLoader';
 
 export interface EngineOptions {
   background?: number;
   showGrid?: boolean;
   showAxes?: boolean;
+  enableXR?: boolean;
 }
 
 export class AtlasEngine {
@@ -13,10 +16,12 @@ export class AtlasEngine {
   readonly camera: THREE.PerspectiveCamera;
   readonly renderer: THREE.WebGLRenderer;
   readonly modules: ModuleLoader;
+  readonly interaction: InteractionSystem;
 
   private clock = new THREE.Clock();
   private running = false;
   private frameListeners: Array<(dt: number) => void> = [];
+  private xrEnabled = false;
 
   constructor(private container: HTMLElement, options: EngineOptions = {}) {
     const background = options.background ?? 0x0b0f14;
@@ -39,14 +44,21 @@ export class AtlasEngine {
 
     this.addDefaultEnvironment(options);
 
+    this.interaction = new InteractionSystem(this.camera, this.renderer.domElement);
+
     const context: ModuleContext = {
       scene: this.scene,
       camera: this.camera,
-      renderer: this.renderer
+      renderer: this.renderer,
+      interaction: this.interaction
     };
     this.modules = new ModuleLoader(context);
 
     window.addEventListener('resize', this.onResize);
+
+    if (options.enableXR) {
+      this.enableXR();
+    }
   }
 
   start(): void {
@@ -64,6 +76,28 @@ export class AtlasEngine {
     }
     this.running = false;
     this.renderer.setAnimationLoop(null);
+  }
+
+  enableXR(): void {
+    if (this.xrEnabled) {
+      return;
+    }
+    this.xrEnabled = true;
+    this.renderer.xr.enabled = true;
+    const button = VRButton.createButton(this.renderer);
+    button.style.position = 'absolute';
+    button.style.right = '16px';
+    button.style.bottom = '16px';
+    this.container.appendChild(button);
+
+    const controller1 = this.renderer.xr.getController(0);
+    const controller2 = this.renderer.xr.getController(1);
+    this.setupControllerRay(controller1);
+    this.setupControllerRay(controller2);
+    this.scene.add(controller1);
+    this.scene.add(controller2);
+    this.interaction.addXRController(controller1);
+    this.interaction.addXRController(controller2);
   }
 
   addFrameListener(listener: (dt: number) => void): () => void {
@@ -107,6 +141,18 @@ export class AtlasEngine {
     }
   }
 
+  private setupControllerRay(controller: THREE.Object3D): void {
+    const geometry = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, 0, 0),
+      new THREE.Vector3(0, 0, -1)
+    ]);
+    const material = new THREE.LineBasicMaterial({ color: 0x94a3b8 });
+    const line = new THREE.Line(geometry, material);
+    line.name = 'xr-ray';
+    line.scale.z = 5;
+    controller.add(line);
+  }
+
   private onResize = (): void => {
     this.camera.aspect = window.innerWidth / window.innerHeight;
     this.camera.updateProjectionMatrix();
@@ -118,6 +164,7 @@ export class AtlasEngine {
     for (const listener of this.frameListeners) {
       listener(dt);
     }
+    this.interaction.update();
     this.modules.update(dt);
     this.renderer.render(this.scene, this.camera);
   };

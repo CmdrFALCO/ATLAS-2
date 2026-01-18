@@ -37,7 +37,22 @@ fps.style.borderRadius = '8px';
 fps.style.pointerEvents = 'none';
 app.appendChild(fps);
 
-const engine = new AtlasEngine(app);
+const interactionDebug = document.createElement('div');
+interactionDebug.textContent = 'Hover: none';
+interactionDebug.style.position = 'absolute';
+interactionDebug.style.left = '16px';
+interactionDebug.style.top = '96px';
+interactionDebug.style.color = '#e2e8f0';
+interactionDebug.style.fontSize = '12px';
+interactionDebug.style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+interactionDebug.style.padding = '6px 10px';
+interactionDebug.style.background = 'rgba(15, 23, 42, 0.7)';
+interactionDebug.style.border = '1px solid rgba(148, 163, 184, 0.4)';
+interactionDebug.style.borderRadius = '8px';
+interactionDebug.style.pointerEvents = 'none';
+app.appendChild(interactionDebug);
+
+const engine = new AtlasEngine(app, { enableXR: true });
 engine.modules.register(new StubModule());
 engine.modules.register(new BeaconModule());
 engine.modules.load('stub');
@@ -65,5 +80,12 @@ engine.addFrameListener((dt) => {
     fps.textContent = `FPS: ${fpsValue}`;
     frameCount = 0;
     elapsed = 0;
+  }
+  const hover = engine.interaction.getHoverHit();
+  if (hover) {
+    const name = hover.object.name || hover.object.type;
+    interactionDebug.textContent = `Hover: ${name} (${hover.distance.toFixed(2)}m)`;
+  } else {
+    interactionDebug.textContent = 'Hover: none';
   }
 });

@@ -39,6 +39,7 @@ Deliverables:
 ## WP-03: Interaction System
 Goal: User input and interaction primitives.
 Entry: WP-02 complete.
+Status: Complete.
 Exit criteria:
 - Raycast select works on desktop mouse.
 - VR controller ray or pointer works (if device available).
