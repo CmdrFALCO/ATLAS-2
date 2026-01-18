@@ -1,6 +1,6 @@
 import './style.css';
 import { AtlasEngine } from './core';
-import { BeaconModule, MnemosyneModule, StubModule } from './modules';
+import { BeaconModule, MnemosyneModule, StubModule, ThemisModule } from './modules';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) {
@@ -8,7 +8,7 @@ if (!app) {
 }
 
 const hint = document.createElement('div');
-hint.textContent = 'Modules: [1] Stub Cube  [2] Beacon  [3] Mnemosyne';
+hint.textContent = 'Modules: [1] Stub Cube  [2] Beacon  [3] Mnemosyne  [4] Themis';
 hint.style.position = 'absolute';
 hint.style.left = '16px';
 hint.style.top = '16px';
@@ -56,6 +56,7 @@ const engine = new AtlasEngine(app, { enableXR: true });
 engine.modules.register(new StubModule());
 engine.modules.register(new BeaconModule());
 engine.modules.register(new MnemosyneModule());
+engine.modules.register(new ThemisModule());
 engine.modules.load('stub');
 let frameCount = 0;
 let elapsed = 0;
@@ -67,6 +68,8 @@ window.addEventListener('keydown', (event) => {
     engine.modules.load('beacon');
   } else if (event.key === '3') {
     engine.modules.load('mnemosyne');
+  } else if (event.key === '4') {
+    engine.modules.load('themis');
   } else if (event.key.toLowerCase() === 'h') {
     const isHidden = hint.style.display === 'none';
     hint.style.display = isHidden ? 'block' : 'none';

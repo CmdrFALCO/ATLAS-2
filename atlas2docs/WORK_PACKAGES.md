@@ -75,6 +75,7 @@ Deliverables:
 ## WP-06: Themis Demo
 Goal: CPN workflow visualization with checkpoints.
 Entry: WP-05 complete.
+Status: Complete.
 Exit criteria:
 - Petri net visualization renders nodes and arcs.
 - Token animation follows scripted path.
