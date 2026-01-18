@@ -4,6 +4,7 @@ export interface MnemosyneNode {
   clusterId?: string;
   connectionCount: number;
   isAISuggested: boolean;
+  needsAttention?: boolean;
 }
 
 export interface MnemosyneEdge {

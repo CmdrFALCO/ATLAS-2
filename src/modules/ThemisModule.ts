@@ -26,6 +26,9 @@ export class ThemisModule implements AtlasModule {
   id = 'themis';
   private group?: THREE.Group;
   private camera?: THREE.Camera;
+  private panelOffset = new THREE.Vector3(0, -0.1, 0);
+  private panelPosition = new THREE.Vector3();
+  private panelDirection = new THREE.Vector3();
   private active = false;
   private nodes = new Map<string, ThemisNode>();
   private token?: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
@@ -322,6 +325,7 @@ export class ThemisModule implements AtlasModule {
       return;
     }
     this.panelLabel.update(label);
+    this.positionPanelInFront();
     this.panelGroup.visible = true;
   }
 
@@ -330,6 +334,18 @@ export class ThemisModule implements AtlasModule {
       return;
     }
     this.panelGroup.visible = false;
+  }
+
+  private positionPanelInFront(distance = 1.1): void {
+    if (!this.panelGroup || !this.camera) {
+      return;
+    }
+    this.camera.getWorldPosition(this.panelPosition);
+    this.camera.getWorldDirection(this.panelDirection);
+    this.panelGroup.position
+      .copy(this.panelPosition)
+      .add(this.panelDirection.multiplyScalar(distance))
+      .add(this.panelOffset);
   }
 
   private disposePanel(): void {

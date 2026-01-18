@@ -1,76 +1,2888 @@
 {
   "nodes": [
     {
-      "id": "n1",
-      "title": "Thermal Runaway Prevention",
-      "clusterId": "thermal",
+      "id": "chemistry-1",
+      "title": "NMC Analysis",
+      "clusterId": "chemistry",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-2",
+      "title": "SEI Analysis",
+      "clusterId": "chemistry",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-3",
+      "title": "NMC Notes",
+      "clusterId": "chemistry",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-4",
+      "title": "Anode Notes",
+      "clusterId": "chemistry",
       "connectionCount": 3,
-      "isAISuggested": false
+      "isAISuggested": false,
+      "needsAttention": false
     },
     {
-      "id": "n2",
-      "title": "Cooling System Trade-offs",
-      "clusterId": "thermal",
-      "connectionCount": 2,
-      "isAISuggested": false
+      "id": "chemistry-5",
+      "title": "Solvent Analysis",
+      "clusterId": "chemistry",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": true
     },
     {
-      "id": "n3",
-      "title": "Cell Format Trade-offs",
-      "clusterId": "strategy",
-      "connectionCount": 2,
-      "isAISuggested": true
-    },
-    {
-      "id": "n4",
-      "title": "Electrolyte Comparison",
+      "id": "chemistry-6",
+      "title": "Anode Trade-offs",
       "clusterId": "chemistry",
       "connectionCount": 1,
-      "isAISuggested": false
+      "isAISuggested": false,
+      "needsAttention": false
     },
     {
-      "id": "n5",
-      "title": "Assembly Line Constraints",
+      "id": "chemistry-7",
+      "title": "Anode Overview",
+      "clusterId": "chemistry",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-8",
+      "title": "Cathode Notes",
+      "clusterId": "chemistry",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-9",
+      "title": "Electrolyte Study",
+      "clusterId": "chemistry",
+      "connectionCount": 6,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-10",
+      "title": "Anode Analysis",
+      "clusterId": "chemistry",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-11",
+      "title": "NMC Study",
+      "clusterId": "chemistry",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-12",
+      "title": "LFP Experiment",
+      "clusterId": "chemistry",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-13",
+      "title": "Electrolyte Trade-offs",
+      "clusterId": "chemistry",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-14",
+      "title": "LFP Review",
+      "clusterId": "chemistry",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-15",
+      "title": "Solvent Analysis",
+      "clusterId": "chemistry",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-16",
+      "title": "NMC Review",
+      "clusterId": "chemistry",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-17",
+      "title": "Electrolyte Overview",
+      "clusterId": "chemistry",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-18",
+      "title": "Solvent Analysis",
+      "clusterId": "chemistry",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": true
+    },
+    {
+      "id": "chemistry-19",
+      "title": "Solvent Overview",
+      "clusterId": "chemistry",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-20",
+      "title": "Anode Report",
+      "clusterId": "chemistry",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-21",
+      "title": "Anode Report",
+      "clusterId": "chemistry",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-22",
+      "title": "Electrolyte Overview",
+      "clusterId": "chemistry",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-23",
+      "title": "Electrolyte Study",
+      "clusterId": "chemistry",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-24",
+      "title": "Solvent Experiment",
+      "clusterId": "chemistry",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-25",
+      "title": "Solvent Study",
+      "clusterId": "chemistry",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-26",
+      "title": "Cathode Review",
+      "clusterId": "chemistry",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-27",
+      "title": "SEI Analysis",
+      "clusterId": "chemistry",
+      "connectionCount": 8,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-28",
+      "title": "Anode Overview",
+      "clusterId": "chemistry",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-29",
+      "title": "Anode Review",
+      "clusterId": "chemistry",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "chemistry-30",
+      "title": "LFP Overview",
+      "clusterId": "chemistry",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-1",
+      "title": "Vent Report",
+      "clusterId": "thermal",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-2",
+      "title": "Vent Review",
+      "clusterId": "thermal",
+      "connectionCount": 7,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-3",
+      "title": "Thermal Runaway Experiment",
+      "clusterId": "thermal",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-4",
+      "title": "Sensors Review",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-5",
+      "title": "Hotspot Notes",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-6",
+      "title": "Sensors Trade-offs",
+      "clusterId": "thermal",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-7",
+      "title": "Sensors Analysis",
+      "clusterId": "thermal",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-8",
+      "title": "Heat Sink Study",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-9",
+      "title": "Heat Sink Review",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-10",
+      "title": "Vent Notes",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-11",
+      "title": "Sensors Notes",
+      "clusterId": "thermal",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-12",
+      "title": "Heat Sink Experiment",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-13",
+      "title": "Sensors Study",
+      "clusterId": "thermal",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-14",
+      "title": "Heat Sink Report",
+      "clusterId": "thermal",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-15",
+      "title": "Thermal Runaway Trade-offs",
+      "clusterId": "thermal",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-16",
+      "title": "Thermal Runaway Notes",
+      "clusterId": "thermal",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-17",
+      "title": "Cooling Trade-offs",
+      "clusterId": "thermal",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-18",
+      "title": "Hotspot Report",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-19",
+      "title": "Cooling Report",
+      "clusterId": "thermal",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-20",
+      "title": "Sensors Trade-offs",
+      "clusterId": "thermal",
+      "connectionCount": 6,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-21",
+      "title": "Cooling Review",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": true
+    },
+    {
+      "id": "thermal-22",
+      "title": "Heat Sink Analysis",
+      "clusterId": "thermal",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-23",
+      "title": "Cooling Trade-offs",
+      "clusterId": "thermal",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-24",
+      "title": "Hotspot Notes",
+      "clusterId": "thermal",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-25",
+      "title": "Thermal Runaway Experiment",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-26",
+      "title": "Heat Sink Review",
+      "clusterId": "thermal",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-27",
+      "title": "Sensors Overview",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-28",
+      "title": "Hotspot Overview",
+      "clusterId": "thermal",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-29",
+      "title": "Cooling Experiment",
+      "clusterId": "thermal",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "thermal-30",
+      "title": "Vent Overview",
+      "clusterId": "thermal",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-1",
+      "title": "Welding Experiment",
+      "clusterId": "manufacturing",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-2",
+      "title": "Quality Control Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-3",
+      "title": "Welding Trade-offs",
+      "clusterId": "manufacturing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-4",
+      "title": "Yield Report",
+      "clusterId": "manufacturing",
+      "connectionCount": 6,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-5",
+      "title": "Yield Analysis",
+      "clusterId": "manufacturing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-6",
+      "title": "Yield Experiment",
+      "clusterId": "manufacturing",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-7",
+      "title": "Assembly Line Notes",
+      "clusterId": "manufacturing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-8",
+      "title": "Welding Notes",
       "clusterId": "manufacturing",
       "connectionCount": 1,
-      "isAISuggested": false
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-9",
+      "title": "Yield Report",
+      "clusterId": "manufacturing",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-10",
+      "title": "Assembly Line Overview",
+      "clusterId": "manufacturing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-11",
+      "title": "Assembly Line Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-12",
+      "title": "Assembly Line Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-13",
+      "title": "Quality Control Analysis",
+      "clusterId": "manufacturing",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-14",
+      "title": "Quality Control Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-15",
+      "title": "Quality Control Overview",
+      "clusterId": "manufacturing",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-16",
+      "title": "Assembly Line Trade-offs",
+      "clusterId": "manufacturing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-17",
+      "title": "Tab Design Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-18",
+      "title": "Welding Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-19",
+      "title": "Quality Control Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-20",
+      "title": "Quality Control Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-21",
+      "title": "Welding Experiment",
+      "clusterId": "manufacturing",
+      "connectionCount": 6,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-22",
+      "title": "Welding Report",
+      "clusterId": "manufacturing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": true
+    },
+    {
+      "id": "manufacturing-23",
+      "title": "Quality Control Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-24",
+      "title": "Assembly Line Trade-offs",
+      "clusterId": "manufacturing",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-25",
+      "title": "Assembly Line Trade-offs",
+      "clusterId": "manufacturing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-26",
+      "title": "Tab Design Trade-offs",
+      "clusterId": "manufacturing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-27",
+      "title": "Yield Report",
+      "clusterId": "manufacturing",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-28",
+      "title": "Yield Review",
+      "clusterId": "manufacturing",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-29",
+      "title": "Welding Trade-offs",
+      "clusterId": "manufacturing",
+      "connectionCount": 7,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "manufacturing-30",
+      "title": "Quality Control Notes",
+      "clusterId": "manufacturing",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-1",
+      "title": "Abuse Test Experiment",
+      "clusterId": "testing",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-2",
+      "title": "Vibration Study",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-3",
+      "title": "Abuse Test Overview",
+      "clusterId": "testing",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-4",
+      "title": "Vibration Review",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-5",
+      "title": "Vibration Notes",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-6",
+      "title": "Abuse Test Study",
+      "clusterId": "testing",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-7",
+      "title": "Validation Study",
+      "clusterId": "testing",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-8",
+      "title": "Abuse Test Study",
+      "clusterId": "testing",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-9",
+      "title": "Abuse Test Notes",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-10",
+      "title": "Abuse Test Analysis",
+      "clusterId": "testing",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-11",
+      "title": "Vibration Overview",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-12",
+      "title": "Validation Report",
+      "clusterId": "testing",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-13",
+      "title": "Abuse Test Report",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-14",
+      "title": "Cycle Life Experiment",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-15",
+      "title": "Abuse Test Experiment",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-16",
+      "title": "Vibration Experiment",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-17",
+      "title": "Abuse Test Analysis",
+      "clusterId": "testing",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-18",
+      "title": "Validation Report",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-19",
+      "title": "Validation Notes",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-20",
+      "title": "Charge Rate Overview",
+      "clusterId": "testing",
+      "connectionCount": 9,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-21",
+      "title": "Charge Rate Analysis",
+      "clusterId": "testing",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": true
+    },
+    {
+      "id": "testing-22",
+      "title": "Validation Trade-offs",
+      "clusterId": "testing",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-23",
+      "title": "Cycle Life Experiment",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-24",
+      "title": "Abuse Test Study",
+      "clusterId": "testing",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-25",
+      "title": "Vibration Report",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-26",
+      "title": "Validation Report",
+      "clusterId": "testing",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-27",
+      "title": "Abuse Test Trade-offs",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-28",
+      "title": "Vibration Analysis",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-29",
+      "title": "Vibration Review",
+      "clusterId": "testing",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "testing-30",
+      "title": "Abuse Test Review",
+      "clusterId": "testing",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-1",
+      "title": "Cost Model Notes",
+      "clusterId": "strategy",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-2",
+      "title": "Cost Model Review",
+      "clusterId": "strategy",
+      "connectionCount": 6,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-3",
+      "title": "Supply Chain Report",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-4",
+      "title": "Roadmap Notes",
+      "clusterId": "strategy",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-5",
+      "title": "Roadmap Notes",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-6",
+      "title": "Roadmap Report",
+      "clusterId": "strategy",
+      "connectionCount": 6,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-7",
+      "title": "Roadmap Study",
+      "clusterId": "strategy",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-8",
+      "title": "Pack Design Review",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-9",
+      "title": "Supply Chain Review",
+      "clusterId": "strategy",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-10",
+      "title": "Roadmap Report",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-11",
+      "title": "Roadmap Trade-offs",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-12",
+      "title": "Supply Chain Trade-offs",
+      "clusterId": "strategy",
+      "connectionCount": 5,
+      "isAISuggested": false,
+      "needsAttention": true
+    },
+    {
+      "id": "strategy-13",
+      "title": "Cost Model Notes",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-14",
+      "title": "Cost Model Study",
+      "clusterId": "strategy",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-15",
+      "title": "Supply Chain Experiment",
+      "clusterId": "strategy",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-16",
+      "title": "Pack Design Review",
+      "clusterId": "strategy",
+      "connectionCount": 0,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-17",
+      "title": "Cost Model Notes",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-18",
+      "title": "Supply Chain Report",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": true
+    },
+    {
+      "id": "strategy-19",
+      "title": "Cost Model Experiment",
+      "clusterId": "strategy",
+      "connectionCount": 1,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-20",
+      "title": "Roadmap Overview",
+      "clusterId": "strategy",
+      "connectionCount": 6,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-21",
+      "title": "Roadmap Experiment",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-22",
+      "title": "Cost Model Overview",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-23",
+      "title": "Roadmap Report",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-24",
+      "title": "Format Trade-offs Report",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-25",
+      "title": "Pack Design Experiment",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-26",
+      "title": "Roadmap Overview",
+      "clusterId": "strategy",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-27",
+      "title": "Pack Design Notes",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-28",
+      "title": "Cost Model Overview",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": false,
+      "needsAttention": true
+    },
+    {
+      "id": "strategy-29",
+      "title": "Cost Model Analysis",
+      "clusterId": "strategy",
+      "connectionCount": 3,
+      "isAISuggested": false,
+      "needsAttention": false
+    },
+    {
+      "id": "strategy-30",
+      "title": "Format Trade-offs Study",
+      "clusterId": "strategy",
+      "connectionCount": 4,
+      "isAISuggested": false,
+      "needsAttention": false
     }
   ],
   "edges": [
     {
       "id": "e1",
-      "source": "n1",
-      "target": "n2",
+      "source": "chemistry-5",
+      "target": "testing-22",
       "type": "explicit"
     },
     {
       "id": "e2",
-      "source": "n1",
-      "target": "n3",
-      "type": "ai_suggested",
-      "confidence": 0.78,
-      "reasons": [
-        "Both discuss heat dissipation",
-        "Surface area mentioned"
-      ]
+      "source": "strategy-15",
+      "target": "chemistry-26",
+      "type": "explicit"
     },
     {
       "id": "e3",
-      "source": "n4",
-      "target": "n3",
+      "source": "thermal-14",
+      "target": "chemistry-15",
+      "type": "ai_suggested",
+      "confidence": 0.91,
+      "reasons": [
+        "Common component reference",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e4",
+      "source": "testing-15",
+      "target": "chemistry-19",
+      "type": "explicit"
+    },
+    {
+      "id": "e5",
+      "source": "thermal-6",
+      "target": "thermal-19",
+      "type": "explicit"
+    },
+    {
+      "id": "e6",
+      "source": "chemistry-21",
+      "target": "chemistry-7",
+      "type": "explicit"
+    },
+    {
+      "id": "e7",
+      "source": "testing-20",
+      "target": "testing-24",
+      "type": "explicit"
+    },
+    {
+      "id": "e8",
+      "source": "thermal-20",
+      "target": "testing-26",
+      "type": "explicit"
+    },
+    {
+      "id": "e9",
+      "source": "testing-9",
+      "target": "chemistry-21",
+      "type": "explicit"
+    },
+    {
+      "id": "e10",
+      "source": "testing-29",
+      "target": "strategy-20",
+      "type": "explicit"
+    },
+    {
+      "id": "e11",
+      "source": "strategy-18",
+      "target": "manufacturing-9",
+      "type": "explicit"
+    },
+    {
+      "id": "e12",
+      "source": "manufacturing-29",
+      "target": "thermal-20",
+      "type": "explicit"
+    },
+    {
+      "id": "e13",
+      "source": "manufacturing-23",
+      "target": "chemistry-1",
+      "type": "explicit"
+    },
+    {
+      "id": "e14",
+      "source": "testing-7",
+      "target": "chemistry-22",
+      "type": "explicit"
+    },
+    {
+      "id": "e15",
+      "source": "thermal-8",
+      "target": "manufacturing-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e16",
+      "source": "strategy-13",
+      "target": "chemistry-17",
+      "type": "explicit"
+    },
+    {
+      "id": "e17",
+      "source": "strategy-9",
+      "target": "testing-22",
+      "type": "explicit"
+    },
+    {
+      "id": "e18",
+      "source": "chemistry-5",
+      "target": "manufacturing-11",
+      "type": "explicit"
+    },
+    {
+      "id": "e19",
+      "source": "strategy-4",
+      "target": "testing-17",
+      "type": "ai_suggested",
+      "confidence": 0.82,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e20",
+      "source": "strategy-15",
+      "target": "chemistry-12",
+      "type": "explicit"
+    },
+    {
+      "id": "e21",
+      "source": "chemistry-10",
+      "target": "manufacturing-19",
+      "type": "ai_suggested",
+      "confidence": 0.83,
+      "reasons": [
+        "Common component reference",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e22",
+      "source": "testing-1",
+      "target": "testing-15",
+      "type": "explicit"
+    },
+    {
+      "id": "e23",
+      "source": "thermal-16",
+      "target": "chemistry-26",
+      "type": "explicit"
+    },
+    {
+      "id": "e24",
+      "source": "testing-19",
+      "target": "chemistry-2",
+      "type": "explicit"
+    },
+    {
+      "id": "e25",
+      "source": "manufacturing-30",
+      "target": "manufacturing-6",
+      "type": "explicit"
+    },
+    {
+      "id": "e26",
+      "source": "chemistry-27",
+      "target": "manufacturing-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e27",
+      "source": "testing-26",
+      "target": "testing-24",
+      "type": "ai_suggested",
+      "confidence": 0.67,
+      "reasons": [
+        "Related project milestone",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e28",
+      "source": "manufacturing-8",
+      "target": "chemistry-9",
+      "type": "ai_suggested",
+      "confidence": 0.63,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e29",
+      "source": "testing-16",
+      "target": "strategy-5",
+      "type": "explicit"
+    },
+    {
+      "id": "e30",
+      "source": "chemistry-18",
+      "target": "thermal-2",
+      "type": "explicit"
+    },
+    {
+      "id": "e31",
+      "source": "strategy-29",
+      "target": "thermal-27",
+      "type": "explicit"
+    },
+    {
+      "id": "e32",
+      "source": "strategy-20",
+      "target": "manufacturing-4",
+      "type": "explicit"
+    },
+    {
+      "id": "e33",
+      "source": "thermal-1",
+      "target": "manufacturing-10",
+      "type": "ai_suggested",
+      "confidence": 0.64,
+      "reasons": [
+        "Mentioned in same test series",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e34",
+      "source": "thermal-7",
+      "target": "thermal-6",
+      "type": "explicit"
+    },
+    {
+      "id": "e35",
+      "source": "chemistry-26",
+      "target": "testing-10",
+      "type": "explicit"
+    },
+    {
+      "id": "e36",
+      "source": "strategy-5",
+      "target": "thermal-27",
+      "type": "ai_suggested",
+      "confidence": 0.76,
+      "reasons": [
+        "Common component reference",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e37",
+      "source": "manufacturing-13",
+      "target": "manufacturing-22",
+      "type": "explicit"
+    },
+    {
+      "id": "e38",
+      "source": "strategy-11",
+      "target": "thermal-25",
+      "type": "ai_suggested",
+      "confidence": 0.88,
+      "reasons": [
+        "Similar thermal constraints",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e39",
+      "source": "thermal-3",
+      "target": "testing-29",
+      "type": "ai_suggested",
+      "confidence": 0.63,
+      "reasons": [
+        "Shared terminology",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e40",
+      "source": "thermal-12",
+      "target": "manufacturing-28",
+      "type": "explicit"
+    },
+    {
+      "id": "e41",
+      "source": "manufacturing-24",
+      "target": "testing-14",
+      "type": "explicit"
+    },
+    {
+      "id": "e42",
+      "source": "thermal-10",
+      "target": "strategy-27",
+      "type": "explicit"
+    },
+    {
+      "id": "e43",
+      "source": "testing-23",
+      "target": "chemistry-7",
+      "type": "explicit"
+    },
+    {
+      "id": "e44",
+      "source": "thermal-27",
+      "target": "testing-18",
+      "type": "ai_suggested",
+      "confidence": 0.89,
+      "reasons": [
+        "Shared terminology",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e45",
+      "source": "strategy-21",
+      "target": "testing-25",
+      "type": "ai_suggested",
+      "confidence": 0.8,
+      "reasons": [
+        "Related project milestone",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e46",
+      "source": "chemistry-12",
+      "target": "testing-26",
+      "type": "explicit"
+    },
+    {
+      "id": "e47",
+      "source": "thermal-6",
+      "target": "thermal-10",
+      "type": "ai_suggested",
+      "confidence": 0.75,
+      "reasons": [
+        "Common component reference",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e48",
+      "source": "strategy-2",
+      "target": "manufacturing-26",
+      "type": "explicit"
+    },
+    {
+      "id": "e49",
+      "source": "testing-24",
+      "target": "manufacturing-6",
+      "type": "ai_suggested",
+      "confidence": 0.81,
+      "reasons": [
+        "Mentioned in same test series",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e50",
+      "source": "strategy-11",
+      "target": "chemistry-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e51",
+      "source": "manufacturing-14",
+      "target": "chemistry-27",
+      "type": "explicit"
+    },
+    {
+      "id": "e52",
+      "source": "testing-26",
+      "target": "thermal-18",
+      "type": "ai_suggested",
+      "confidence": 0.84,
+      "reasons": [
+        "Related project milestone",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e53",
+      "source": "manufacturing-28",
+      "target": "manufacturing-21",
+      "type": "explicit"
+    },
+    {
+      "id": "e54",
+      "source": "manufacturing-24",
+      "target": "testing-2",
+      "type": "ai_suggested",
+      "confidence": 0.84,
+      "reasons": [
+        "Common component reference",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e55",
+      "source": "thermal-9",
+      "target": "thermal-2",
+      "type": "ai_suggested",
+      "confidence": 0.69,
+      "reasons": [
+        "Common component reference",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e56",
+      "source": "manufacturing-24",
+      "target": "strategy-30",
+      "type": "explicit"
+    },
+    {
+      "id": "e57",
+      "source": "strategy-10",
+      "target": "chemistry-4",
+      "type": "explicit"
+    },
+    {
+      "id": "e58",
+      "source": "chemistry-4",
+      "target": "manufacturing-26",
+      "type": "ai_suggested",
+      "confidence": 0.63,
+      "reasons": [
+        "Shared terminology",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e59",
+      "source": "chemistry-14",
+      "target": "manufacturing-15",
+      "type": "ai_suggested",
+      "confidence": 0.84,
+      "reasons": [
+        "Mentioned in same test series",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e60",
+      "source": "strategy-2",
+      "target": "chemistry-5",
+      "type": "explicit"
+    },
+    {
+      "id": "e61",
+      "source": "manufacturing-10",
+      "target": "testing-1",
+      "type": "explicit"
+    },
+    {
+      "id": "e62",
+      "source": "manufacturing-15",
+      "target": "manufacturing-9",
+      "type": "explicit"
+    },
+    {
+      "id": "e63",
+      "source": "testing-1",
+      "target": "chemistry-12",
+      "type": "ai_suggested",
+      "confidence": 0.84,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e64",
+      "source": "strategy-1",
+      "target": "strategy-12",
+      "type": "explicit"
+    },
+    {
+      "id": "e65",
+      "source": "testing-1",
+      "target": "strategy-1",
+      "type": "explicit"
+    },
+    {
+      "id": "e66",
+      "source": "thermal-2",
+      "target": "strategy-4",
+      "type": "explicit"
+    },
+    {
+      "id": "e67",
+      "source": "thermal-11",
+      "target": "thermal-3",
+      "type": "explicit"
+    },
+    {
+      "id": "e68",
+      "source": "testing-9",
+      "target": "thermal-29",
+      "type": "ai_suggested",
+      "confidence": 0.85,
+      "reasons": [
+        "Similar thermal constraints",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e69",
+      "source": "thermal-16",
+      "target": "thermal-15",
+      "type": "explicit"
+    },
+    {
+      "id": "e70",
+      "source": "chemistry-22",
+      "target": "strategy-6",
+      "type": "ai_suggested",
+      "confidence": 0.94,
+      "reasons": [
+        "Similar thermal constraints",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e71",
+      "source": "chemistry-16",
+      "target": "testing-25",
+      "type": "explicit"
+    },
+    {
+      "id": "e72",
+      "source": "thermal-10",
+      "target": "chemistry-15",
+      "type": "explicit"
+    },
+    {
+      "id": "e73",
+      "source": "chemistry-23",
+      "target": "strategy-12",
+      "type": "explicit"
+    },
+    {
+      "id": "e74",
+      "source": "thermal-5",
+      "target": "thermal-23",
+      "type": "explicit"
+    },
+    {
+      "id": "e75",
+      "source": "strategy-9",
+      "target": "strategy-6",
+      "type": "ai_suggested",
+      "confidence": 0.83,
+      "reasons": [
+        "Similar thermal constraints",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e76",
+      "source": "testing-6",
+      "target": "manufacturing-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e77",
+      "source": "strategy-8",
+      "target": "strategy-28",
+      "type": "ai_suggested",
+      "confidence": 0.71,
+      "reasons": [
+        "Mentioned in same test series",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e78",
+      "source": "thermal-23",
+      "target": "chemistry-2",
+      "type": "ai_suggested",
+      "confidence": 0.65,
+      "reasons": [
+        "Shared terminology",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e79",
+      "source": "thermal-9",
+      "target": "chemistry-9",
+      "type": "explicit"
+    },
+    {
+      "id": "e80",
+      "source": "strategy-30",
+      "target": "strategy-9",
+      "type": "ai_suggested",
+      "confidence": 0.73,
+      "reasons": [
+        "Related project milestone",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e81",
+      "source": "testing-17",
+      "target": "thermal-20",
+      "type": "explicit"
+    },
+    {
+      "id": "e82",
+      "source": "strategy-17",
+      "target": "manufacturing-21",
+      "type": "explicit"
+    },
+    {
+      "id": "e83",
+      "source": "testing-2",
+      "target": "manufacturing-30",
+      "type": "ai_suggested",
+      "confidence": 0.74,
+      "reasons": [
+        "Similar thermal constraints",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e84",
+      "source": "manufacturing-30",
+      "target": "manufacturing-16",
+      "type": "explicit"
+    },
+    {
+      "id": "e85",
+      "source": "thermal-20",
+      "target": "testing-25",
+      "type": "explicit"
+    },
+    {
+      "id": "e86",
+      "source": "chemistry-12",
+      "target": "manufacturing-28",
+      "type": "explicit"
+    },
+    {
+      "id": "e87",
+      "source": "chemistry-17",
+      "target": "manufacturing-5",
+      "type": "explicit"
+    },
+    {
+      "id": "e88",
+      "source": "manufacturing-7",
+      "target": "strategy-6",
+      "type": "ai_suggested",
+      "confidence": 0.72,
+      "reasons": [
+        "Mentioned in same test series",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e89",
+      "source": "chemistry-4",
+      "target": "strategy-17",
+      "type": "explicit"
+    },
+    {
+      "id": "e90",
+      "source": "testing-27",
+      "target": "manufacturing-5",
+      "type": "ai_suggested",
+      "confidence": 0.73,
+      "reasons": [
+        "Similar thermal constraints",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e91",
+      "source": "thermal-22",
+      "target": "thermal-4",
+      "type": "explicit"
+    },
+    {
+      "id": "e92",
+      "source": "chemistry-27",
+      "target": "strategy-14",
+      "type": "ai_suggested",
+      "confidence": 0.56,
+      "reasons": [
+        "Similar thermal constraints",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e93",
+      "source": "testing-26",
+      "target": "testing-21",
+      "type": "ai_suggested",
+      "confidence": 0.71,
+      "reasons": [
+        "Similar thermal constraints",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e94",
+      "source": "strategy-11",
+      "target": "thermal-28",
+      "type": "explicit"
+    },
+    {
+      "id": "e95",
+      "source": "manufacturing-4",
+      "target": "manufacturing-7",
+      "type": "ai_suggested",
+      "confidence": 0.79,
+      "reasons": [
+        "Related project milestone",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e96",
+      "source": "thermal-4",
+      "target": "manufacturing-3",
+      "type": "explicit"
+    },
+    {
+      "id": "e97",
+      "source": "manufacturing-13",
+      "target": "chemistry-7",
+      "type": "ai_suggested",
+      "confidence": 0.79,
+      "reasons": [
+        "Related project milestone",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e98",
+      "source": "thermal-24",
+      "target": "strategy-15",
+      "type": "ai_suggested",
+      "confidence": 0.77,
+      "reasons": [
+        "Similar thermal constraints",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e99",
+      "source": "strategy-3",
+      "target": "testing-20",
+      "type": "explicit"
+    },
+    {
+      "id": "e100",
+      "source": "testing-9",
+      "target": "testing-4",
+      "type": "explicit"
+    },
+    {
+      "id": "e101",
+      "source": "testing-11",
+      "target": "manufacturing-6",
+      "type": "explicit"
+    },
+    {
+      "id": "e102",
+      "source": "testing-3",
+      "target": "testing-6",
+      "type": "explicit"
+    },
+    {
+      "id": "e103",
+      "source": "testing-20",
+      "target": "chemistry-13",
+      "type": "explicit"
+    },
+    {
+      "id": "e104",
+      "source": "thermal-19",
+      "target": "testing-13",
+      "type": "explicit"
+    },
+    {
+      "id": "e105",
+      "source": "testing-29",
+      "target": "chemistry-9",
+      "type": "ai_suggested",
+      "confidence": 0.71,
+      "reasons": [
+        "Related project milestone",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e106",
+      "source": "thermal-15",
+      "target": "thermal-11",
+      "type": "ai_suggested",
+      "confidence": 0.69,
+      "reasons": [
+        "Mentioned in same test series",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e107",
+      "source": "manufacturing-10",
+      "target": "thermal-18",
+      "type": "explicit"
+    },
+    {
+      "id": "e108",
+      "source": "manufacturing-13",
+      "target": "manufacturing-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e109",
+      "source": "thermal-21",
+      "target": "strategy-20",
+      "type": "ai_suggested",
+      "confidence": 0.78,
+      "reasons": [
+        "Mentioned in same test series",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e110",
+      "source": "testing-5",
+      "target": "manufacturing-21",
+      "type": "explicit"
+    },
+    {
+      "id": "e111",
+      "source": "manufacturing-19",
+      "target": "strategy-21",
+      "type": "ai_suggested",
+      "confidence": 0.63,
+      "reasons": [
+        "Mentioned in same test series",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e112",
+      "source": "manufacturing-29",
+      "target": "testing-17",
+      "type": "explicit"
+    },
+    {
+      "id": "e113",
+      "source": "thermal-22",
+      "target": "thermal-26",
+      "type": "explicit"
+    },
+    {
+      "id": "e114",
+      "source": "manufacturing-7",
+      "target": "manufacturing-21",
+      "type": "explicit"
+    },
+    {
+      "id": "e115",
+      "source": "strategy-26",
+      "target": "thermal-15",
+      "type": "explicit"
+    },
+    {
+      "id": "e116",
+      "source": "chemistry-24",
+      "target": "strategy-3",
+      "type": "explicit"
+    },
+    {
+      "id": "e117",
+      "source": "strategy-29",
+      "target": "strategy-28",
+      "type": "explicit"
+    },
+    {
+      "id": "e118",
+      "source": "testing-20",
+      "target": "strategy-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e119",
+      "source": "strategy-2",
+      "target": "manufacturing-2",
+      "type": "explicit"
+    },
+    {
+      "id": "e120",
+      "source": "chemistry-14",
+      "target": "thermal-5",
+      "type": "ai_suggested",
+      "confidence": 0.7,
+      "reasons": [
+        "Common component reference",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e121",
+      "source": "manufacturing-4",
+      "target": "strategy-26",
+      "type": "explicit"
+    },
+    {
+      "id": "e122",
+      "source": "manufacturing-13",
+      "target": "chemistry-13",
+      "type": "explicit"
+    },
+    {
+      "id": "e123",
+      "source": "chemistry-27",
+      "target": "strategy-20",
+      "type": "ai_suggested",
+      "confidence": 0.94,
+      "reasons": [
+        "Similar thermal constraints",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e124",
+      "source": "manufacturing-11",
+      "target": "thermal-22",
+      "type": "ai_suggested",
+      "confidence": 0.94,
+      "reasons": [
+        "Common component reference",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e125",
+      "source": "thermal-26",
+      "target": "testing-30",
+      "type": "ai_suggested",
+      "confidence": 0.74,
+      "reasons": [
+        "Shared terminology",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e126",
+      "source": "thermal-19",
+      "target": "thermal-3",
+      "type": "ai_suggested",
+      "confidence": 0.63,
+      "reasons": [
+        "Similar thermal constraints",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e127",
+      "source": "strategy-12",
+      "target": "thermal-4",
+      "type": "explicit"
+    },
+    {
+      "id": "e128",
+      "source": "thermal-17",
+      "target": "testing-11",
+      "type": "explicit"
+    },
+    {
+      "id": "e129",
+      "source": "testing-28",
+      "target": "thermal-14",
+      "type": "explicit"
+    },
+    {
+      "id": "e130",
+      "source": "thermal-19",
+      "target": "testing-23",
+      "type": "ai_suggested",
+      "confidence": 0.66,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e131",
+      "source": "testing-18",
+      "target": "thermal-22",
+      "type": "ai_suggested",
+      "confidence": 0.62,
+      "reasons": [
+        "Shared terminology",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e132",
+      "source": "chemistry-16",
+      "target": "strategy-13",
+      "type": "explicit"
+    },
+    {
+      "id": "e133",
+      "source": "strategy-24",
+      "target": "testing-23",
+      "type": "explicit"
+    },
+    {
+      "id": "e134",
+      "source": "thermal-12",
+      "target": "chemistry-5",
+      "type": "ai_suggested",
+      "confidence": 0.6,
+      "reasons": [
+        "Similar thermal constraints",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e135",
+      "source": "chemistry-5",
+      "target": "chemistry-3",
+      "type": "ai_suggested",
+      "confidence": 0.69,
+      "reasons": [
+        "Mentioned in same test series",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e136",
+      "source": "manufacturing-26",
+      "target": "chemistry-6",
+      "type": "explicit"
+    },
+    {
+      "id": "e137",
+      "source": "chemistry-15",
+      "target": "chemistry-22",
+      "type": "explicit"
+    },
+    {
+      "id": "e138",
+      "source": "manufacturing-15",
+      "target": "strategy-18",
+      "type": "explicit"
+    },
+    {
+      "id": "e139",
+      "source": "chemistry-17",
+      "target": "manufacturing-30",
+      "type": "explicit"
+    },
+    {
+      "id": "e140",
+      "source": "strategy-10",
+      "target": "thermal-13",
+      "type": "ai_suggested",
+      "confidence": 0.91,
+      "reasons": [
+        "Shared terminology",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e141",
+      "source": "thermal-5",
+      "target": "manufacturing-21",
+      "type": "explicit"
+    },
+    {
+      "id": "e142",
+      "source": "strategy-26",
+      "target": "strategy-9",
+      "type": "explicit"
+    },
+    {
+      "id": "e143",
+      "source": "thermal-26",
+      "target": "manufacturing-28",
+      "type": "explicit"
+    },
+    {
+      "id": "e144",
+      "source": "chemistry-19",
+      "target": "manufacturing-9",
+      "type": "explicit"
+    },
+    {
+      "id": "e145",
+      "source": "thermal-20",
+      "target": "strategy-25",
+      "type": "ai_suggested",
+      "confidence": 0.77,
+      "reasons": [
+        "Common component reference",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e146",
+      "source": "chemistry-9",
+      "target": "manufacturing-13",
+      "type": "explicit"
+    },
+    {
+      "id": "e147",
+      "source": "testing-19",
+      "target": "testing-15",
+      "type": "explicit"
+    },
+    {
+      "id": "e148",
+      "source": "manufacturing-18",
+      "target": "thermal-16",
+      "type": "explicit"
+    },
+    {
+      "id": "e149",
+      "source": "manufacturing-4",
+      "target": "chemistry-7",
+      "type": "explicit"
+    },
+    {
+      "id": "e150",
+      "source": "thermal-21",
+      "target": "thermal-23",
+      "type": "explicit"
+    },
+    {
+      "id": "e151",
+      "source": "chemistry-16",
+      "target": "testing-6",
+      "type": "explicit"
+    },
+    {
+      "id": "e152",
+      "source": "manufacturing-25",
+      "target": "strategy-22",
+      "type": "explicit"
+    },
+    {
+      "id": "e153",
+      "source": "manufacturing-17",
+      "target": "strategy-1",
+      "type": "ai_suggested",
+      "confidence": 0.74,
+      "reasons": [
+        "Shared terminology",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e154",
+      "source": "testing-4",
+      "target": "testing-5",
+      "type": "ai_suggested",
+      "confidence": 0.59,
+      "reasons": [
+        "Related project milestone",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e155",
+      "source": "testing-28",
+      "target": "testing-22",
+      "type": "explicit"
+    },
+    {
+      "id": "e156",
+      "source": "strategy-5",
+      "target": "thermal-2",
+      "type": "ai_suggested",
+      "confidence": 0.82,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e157",
+      "source": "chemistry-20",
+      "target": "testing-20",
+      "type": "explicit"
+    },
+    {
+      "id": "e158",
+      "source": "manufacturing-17",
+      "target": "testing-5",
+      "type": "explicit"
+    },
+    {
+      "id": "e159",
+      "source": "testing-17",
+      "target": "manufacturing-16",
+      "type": "explicit"
+    },
+    {
+      "id": "e160",
+      "source": "thermal-2",
+      "target": "strategy-1",
+      "type": "ai_suggested",
+      "confidence": 0.8,
+      "reasons": [
+        "Common component reference",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e161",
+      "source": "manufacturing-5",
+      "target": "thermal-28",
+      "type": "ai_suggested",
+      "confidence": 0.88,
+      "reasons": [
+        "Common component reference",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e162",
+      "source": "chemistry-9",
+      "target": "chemistry-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e163",
+      "source": "thermal-14",
+      "target": "thermal-28",
+      "type": "explicit"
+    },
+    {
+      "id": "e164",
+      "source": "chemistry-21",
+      "target": "strategy-20",
+      "type": "explicit"
+    },
+    {
+      "id": "e165",
+      "source": "thermal-2",
+      "target": "chemistry-30",
+      "type": "ai_suggested",
+      "confidence": 0.68,
+      "reasons": [
+        "Common component reference",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e166",
+      "source": "strategy-6",
+      "target": "thermal-25",
+      "type": "ai_suggested",
+      "confidence": 0.87,
+      "reasons": [
+        "Mentioned in same test series",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e167",
+      "source": "testing-20",
+      "target": "strategy-25",
+      "type": "ai_suggested",
+      "confidence": 0.79,
+      "reasons": [
+        "Common component reference",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e168",
+      "source": "thermal-8",
+      "target": "thermal-20",
+      "type": "ai_suggested",
+      "confidence": 0.88,
+      "reasons": [
+        "Shared terminology",
+        "Mentioned in same test series"
+      ]
+    },
+    {
+      "id": "e169",
+      "source": "manufacturing-27",
+      "target": "thermal-9",
+      "type": "ai_suggested",
+      "confidence": 0.81,
+      "reasons": [
+        "Common component reference",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e170",
+      "source": "strategy-26",
+      "target": "chemistry-1",
+      "type": "explicit"
+    },
+    {
+      "id": "e171",
+      "source": "strategy-27",
+      "target": "manufacturing-19",
+      "type": "ai_suggested",
+      "confidence": 0.69,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e172",
+      "source": "thermal-13",
+      "target": "thermal-2",
+      "type": "explicit"
+    },
+    {
+      "id": "e173",
+      "source": "testing-22",
+      "target": "manufacturing-9",
+      "type": "explicit"
+    },
+    {
+      "id": "e174",
+      "source": "strategy-12",
+      "target": "manufacturing-18",
+      "type": "explicit"
+    },
+    {
+      "id": "e175",
+      "source": "manufacturing-23",
+      "target": "thermal-14",
+      "type": "explicit"
+    },
+    {
+      "id": "e176",
+      "source": "testing-20",
+      "target": "thermal-25",
+      "type": "ai_suggested",
+      "confidence": 0.58,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e177",
+      "source": "thermal-15",
+      "target": "manufacturing-4",
+      "type": "ai_suggested",
+      "confidence": 0.93,
+      "reasons": [
+        "Common component reference",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e178",
+      "source": "manufacturing-25",
+      "target": "strategy-6",
+      "type": "explicit"
+    },
+    {
+      "id": "e179",
+      "source": "chemistry-16",
+      "target": "strategy-23",
+      "type": "explicit"
+    },
+    {
+      "id": "e180",
+      "source": "strategy-25",
+      "target": "strategy-4",
+      "type": "explicit"
+    },
+    {
+      "id": "e181",
+      "source": "thermal-6",
+      "target": "chemistry-3",
+      "type": "explicit"
+    },
+    {
+      "id": "e182",
+      "source": "manufacturing-3",
+      "target": "testing-19",
+      "type": "explicit"
+    },
+    {
+      "id": "e183",
+      "source": "testing-6",
+      "target": "testing-24",
+      "type": "ai_suggested",
+      "confidence": 0.8,
+      "reasons": [
+        "Common component reference",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e184",
+      "source": "manufacturing-22",
+      "target": "thermal-28",
+      "type": "explicit"
+    },
+    {
+      "id": "e185",
+      "source": "testing-13",
+      "target": "testing-24",
+      "type": "explicit"
+    },
+    {
+      "id": "e186",
+      "source": "strategy-21",
+      "target": "strategy-23",
+      "type": "explicit"
+    },
+    {
+      "id": "e187",
+      "source": "thermal-8",
+      "target": "chemistry-13",
+      "type": "explicit"
+    },
+    {
+      "id": "e188",
+      "source": "strategy-2",
+      "target": "strategy-12",
+      "type": "explicit"
+    },
+    {
+      "id": "e189",
+      "source": "manufacturing-15",
+      "target": "strategy-8",
+      "type": "explicit"
+    },
+    {
+      "id": "e190",
+      "source": "chemistry-20",
+      "target": "testing-14",
+      "type": "explicit"
+    },
+    {
+      "id": "e191",
+      "source": "chemistry-9",
+      "target": "thermal-16",
+      "type": "ai_suggested",
+      "confidence": 0.88,
+      "reasons": [
+        "Related project milestone",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e192",
+      "source": "testing-20",
+      "target": "thermal-18",
+      "type": "explicit"
+    },
+    {
+      "id": "e193",
+      "source": "chemistry-21",
+      "target": "strategy-6",
+      "type": "ai_suggested",
+      "confidence": 0.64,
+      "reasons": [
+        "Common component reference",
+        "Common component reference"
+      ]
+    },
+    {
+      "id": "e194",
+      "source": "thermal-19",
+      "target": "manufacturing-16",
+      "type": "explicit"
+    },
+    {
+      "id": "e195",
+      "source": "thermal-21",
+      "target": "strategy-15",
+      "type": "explicit"
+    },
+    {
+      "id": "e196",
+      "source": "thermal-6",
+      "target": "testing-20",
+      "type": "explicit"
+    },
+    {
+      "id": "e197",
+      "source": "chemistry-27",
+      "target": "chemistry-23",
+      "type": "explicit"
+    },
+    {
+      "id": "e198",
+      "source": "chemistry-13",
+      "target": "chemistry-23",
+      "type": "explicit"
+    },
+    {
+      "id": "e199",
+      "source": "testing-27",
+      "target": "chemistry-21",
+      "type": "explicit"
+    },
+    {
+      "id": "e200",
+      "source": "chemistry-27",
+      "target": "manufacturing-2",
+      "type": "explicit"
+    },
+    {
+      "id": "e201",
+      "source": "manufacturing-6",
+      "target": "strategy-24",
+      "type": "explicit"
+    },
+    {
+      "id": "e202",
+      "source": "manufacturing-21",
+      "target": "strategy-10",
+      "type": "explicit"
+    },
+    {
+      "id": "e203",
+      "source": "strategy-3",
+      "target": "thermal-12",
+      "type": "explicit"
+    },
+    {
+      "id": "e204",
+      "source": "chemistry-8",
+      "target": "testing-16",
+      "type": "explicit"
+    },
+    {
+      "id": "e205",
+      "source": "chemistry-27",
+      "target": "strategy-2",
+      "type": "ai_suggested",
+      "confidence": 0.55,
+      "reasons": [
+        "Mentioned in same test series",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e206",
+      "source": "thermal-30",
+      "target": "manufacturing-4",
+      "type": "ai_suggested",
+      "confidence": 0.78,
+      "reasons": [
+        "Similar thermal constraints",
+        "Similar thermal constraints"
+      ]
+    },
+    {
+      "id": "e207",
+      "source": "chemistry-28",
+      "target": "manufacturing-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e208",
+      "source": "chemistry-20",
+      "target": "manufacturing-11",
+      "type": "explicit"
+    },
+    {
+      "id": "e209",
+      "source": "thermal-22",
+      "target": "strategy-30",
+      "type": "ai_suggested",
+      "confidence": 0.88,
+      "reasons": [
+        "Mentioned in same test series",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e210",
+      "source": "manufacturing-24",
+      "target": "thermal-26",
+      "type": "explicit"
+    },
+    {
+      "id": "e211",
+      "source": "strategy-30",
+      "target": "strategy-23",
+      "type": "ai_suggested",
+      "confidence": 0.93,
+      "reasons": [
+        "Similar thermal constraints",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e212",
+      "source": "chemistry-27",
+      "target": "strategy-22",
+      "type": "explicit"
+    },
+    {
+      "id": "e213",
+      "source": "testing-30",
+      "target": "thermal-3",
+      "type": "explicit"
+    },
+    {
+      "id": "e214",
+      "source": "strategy-4",
+      "target": "strategy-19",
+      "type": "explicit"
+    },
+    {
+      "id": "e215",
+      "source": "strategy-7",
+      "target": "testing-2",
+      "type": "ai_suggested",
+      "confidence": 0.88,
+      "reasons": [
+        "Common component reference",
+        "Shared terminology"
+      ]
+    },
+    {
+      "id": "e216",
+      "source": "thermal-23",
+      "target": "manufacturing-6",
+      "type": "ai_suggested",
+      "confidence": 0.82,
+      "reasons": [
+        "Related project milestone",
+        "Related project milestone"
+      ]
+    },
+    {
+      "id": "e217",
+      "source": "strategy-24",
+      "target": "strategy-1",
+      "type": "explicit"
+    },
+    {
+      "id": "e218",
+      "source": "strategy-2",
+      "target": "testing-16",
+      "type": "explicit"
+    },
+    {
+      "id": "e219",
+      "source": "manufacturing-30",
+      "target": "chemistry-29",
+      "type": "explicit"
+    },
+    {
+      "id": "e220",
+      "source": "strategy-20",
+      "target": "manufacturing-15",
       "type": "explicit"
     }
   ],
   "clusters": [
     {
-      "id": "thermal",
-      "label": "Thermal",
-      "color": "#ef4444"
-    },
-    {
       "id": "chemistry",
       "label": "Chemistry",
       "color": "#3b82f6"
+    },
+    {
+      "id": "thermal",
+      "label": "Thermal",
+      "color": "#ef4444"
     },
     {
       "id": "manufacturing",
@@ -78,9 +2890,14 @@
       "color": "#22c55e"
     },
     {
+      "id": "testing",
+      "label": "Testing",
+      "color": "#f59e0b"
+    },
+    {
       "id": "strategy",
       "label": "Strategy",
-      "color": "#f59e0b"
+      "color": "#8b5cf6"
     }
   ]
 }

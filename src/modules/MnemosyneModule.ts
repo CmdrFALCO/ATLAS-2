@@ -5,14 +5,20 @@ import { TextSprite } from '../ui/TextSprite';
 
 const EXPLICIT_COLOR = 0x3b82f6;
 const AI_COLOR = 0x22c55e;
+const ATTENTION_COLOR = 0xf59e0b;
 
 interface NodeEntry {
   id: string;
+  clusterId: string;
   mesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
   material: THREE.MeshStandardMaterial;
   label: LabelEntry;
   unsubscribe: () => void;
   selected: boolean;
+  hovered: boolean;
+  basePosition: THREE.Vector3;
+  expandedPosition: THREE.Vector3;
+  needsAttention: boolean;
 }
 
 interface EdgeEntry {
@@ -28,12 +34,23 @@ interface EdgeEntry {
   reasons?: string[];
   confidence?: number;
   visible: boolean;
+  source?: NodeEntry;
+  target?: NodeEntry;
+  positionAttr?: THREE.BufferAttribute;
 }
 
 interface LabelEntry {
   sprite: THREE.Sprite;
   material: THREE.SpriteMaterial;
   texture: THREE.Texture;
+}
+
+interface ClusterEntry {
+  id: string;
+  center: THREE.Vector3;
+  expanded: boolean;
+  label: LabelEntry;
+  unsubscribe: () => void;
 }
 
 interface PanelButton {
@@ -48,6 +65,9 @@ export class MnemosyneModule implements AtlasModule {
   id = 'mnemosyne';
   private group?: THREE.Group;
   private camera?: THREE.Camera;
+  private panelOffset = new THREE.Vector3(0, -0.1, 0);
+  private panelPosition = new THREE.Vector3();
+  private panelDirection = new THREE.Vector3();
   private panelGroup?: THREE.Group;
   private panelTitle?: TextSprite;
   private panelConnection?: TextSprite;
@@ -60,6 +80,7 @@ export class MnemosyneModule implements AtlasModule {
   private nodes: NodeEntry[] = [];
   private edges: EdgeEntry[] = [];
   private labels: LabelEntry[] = [];
+  private clusters = new Map<string, ClusterEntry>();
   private active = false;
   private pulseTime = 0;
   private activeEdge?: EdgeEntry;
@@ -90,6 +111,16 @@ export class MnemosyneModule implements AtlasModule {
         edge.handle.scale.setScalar(pulse);
       }
     }
+    for (const node of this.nodes) {
+      const cluster = this.clusters.get(node.clusterId);
+      if (!cluster) {
+        continue;
+      }
+      const target = cluster.expanded ? node.expandedPosition : node.basePosition;
+      node.mesh.position.lerp(target, 0.1);
+      node.label.sprite.position.copy(node.mesh.position).add(new THREE.Vector3(0, 0.18, 0));
+    }
+    this.updateEdges();
     if (this.panelGroup && this.camera) {
       this.panelGroup.lookAt(this.camera.position);
     }
@@ -127,6 +158,14 @@ export class MnemosyneModule implements AtlasModule {
     }
     this.labels = [];
 
+    for (const cluster of this.clusters.values()) {
+      cluster.unsubscribe();
+      cluster.label.material.dispose();
+      cluster.label.texture.dispose();
+      cluster.label.sprite.removeFromParent();
+    }
+    this.clusters.clear();
+
     this.nodeGeometry?.dispose();
     this.nodeGeometry = undefined;
     this.handleGeometry?.dispose();
@@ -148,8 +187,8 @@ export class MnemosyneModule implements AtlasModule {
       data.clusters.map((cluster) => [cluster.id, cluster] as const)
     );
     const nodeGroups = new Map<string, typeof data.nodes>();
-    const nodePositions = new Map<string, THREE.Vector3>();
     const nodeTitles = new Map<string, string>();
+    const nodeEntryMap = new Map<string, NodeEntry>();
 
     for (const node of data.nodes) {
       const key = node.clusterId ?? 'default';
@@ -161,9 +200,10 @@ export class MnemosyneModule implements AtlasModule {
     }
 
     const clusterIds = Array.from(nodeGroups.keys());
-    const radius = 1.6;
-    const innerRadius = 0.4;
-    this.nodeGeometry = new THREE.SphereGeometry(0.08, 16, 16);
+    const radius = 2.2;
+    const innerRadius = 0.55;
+    const expandedRadius = 1.15;
+    this.nodeGeometry = new THREE.SphereGeometry(0.07, 16, 16);
     this.handleGeometry = new THREE.SphereGeometry(0.05, 12, 12);
 
     clusterIds.forEach((clusterId, clusterIndex) => {
@@ -177,62 +217,101 @@ export class MnemosyneModule implements AtlasModule {
       );
 
       const clusterLabel = this.createLabelSprite(cluster?.label ?? clusterId, '#e2e8f0');
-      clusterLabel.sprite.position.copy(center).add(new THREE.Vector3(0, 0.35, 0));
+      clusterLabel.sprite.position.copy(center).add(new THREE.Vector3(0, 0.45, 0));
       this.group?.add(clusterLabel.sprite);
       this.labels.push(clusterLabel);
+
+      const clusterEntry: ClusterEntry = {
+        id: clusterId,
+        center,
+        expanded: false,
+        label: clusterLabel,
+        unsubscribe: context.interaction.register(clusterLabel.sprite, {
+          onSelect: () => {
+            const current = this.clusters.get(clusterId);
+            if (current) {
+              current.expanded = !current.expanded;
+            }
+          }
+        })
+      };
+      this.clusters.set(clusterId, clusterEntry);
 
       const nodes = nodeGroups.get(clusterId) ?? [];
       nodes.forEach((node, nodeIndex) => {
         const nodeAngle = (nodeIndex / Math.max(nodes.length, 1)) * Math.PI * 2;
-        const offset = new THREE.Vector3(
+        const offsetBase = new THREE.Vector3(
           Math.cos(nodeAngle) * innerRadius,
-          (nodeIndex % 3) * 0.06,
+          (nodeIndex % 5) * 0.05,
           Math.sin(nodeAngle) * innerRadius
         );
-        const position = center.clone().add(offset);
-        nodePositions.set(node.id, position);
+        const offsetExpanded = new THREE.Vector3(
+          Math.cos(nodeAngle) * expandedRadius,
+          (nodeIndex % 7) * 0.06,
+          Math.sin(nodeAngle) * expandedRadius
+        );
+        const basePosition = center.clone().add(offsetBase);
+        const expandedPosition = center.clone().add(offsetExpanded);
 
-        const material = new THREE.MeshStandardMaterial({ color });
+        const materialColor = node.needsAttention ? ATTENTION_COLOR : color;
+        const material = new THREE.MeshStandardMaterial({ color: materialColor });
         const mesh = new THREE.Mesh(this.nodeGeometry!, material);
-        mesh.position.copy(position);
+        mesh.position.copy(basePosition);
         mesh.name = node.title;
         this.group?.add(mesh);
 
         const label = this.createLabelSprite(node.title, '#f8fafc');
-        label.sprite.position.copy(position).add(new THREE.Vector3(0, 0.18, 0));
+        label.sprite.position.copy(mesh.position).add(new THREE.Vector3(0, 0.18, 0));
+        label.sprite.visible = false;
         this.group?.add(label.sprite);
 
         const entry: NodeEntry = {
           id: node.id,
+          clusterId,
           mesh,
           material,
           label,
           selected: false,
+          hovered: false,
+          basePosition,
+          expandedPosition,
+          needsAttention: Boolean(node.needsAttention),
           unsubscribe: context.interaction.register(mesh, {
             onHoverStart: () => {
+              entry.hovered = true;
+              label.sprite.visible = true;
               material.emissive.setHex(0x1f2937);
             },
             onHoverEnd: () => {
+              entry.hovered = false;
+              label.sprite.visible = entry.selected;
               material.emissive.setHex(0x000000);
             },
             onSelect: () => {
               entry.selected = !entry.selected;
-              material.color.set(entry.selected ? '#22c55e' : color);
+              label.sprite.visible = entry.selected || entry.hovered;
+              if (!entry.needsAttention) {
+                material.color.set(entry.selected ? '#22c55e' : materialColor);
+              }
             }
           })
         };
         this.nodes.push(entry);
+        nodeEntryMap.set(node.id, entry);
       });
     });
 
     for (const edge of data.edges) {
-      const source = nodePositions.get(edge.source);
-      const target = nodePositions.get(edge.target);
+      const source = nodeEntryMap.get(edge.source);
+      const target = nodeEntryMap.get(edge.target);
       if (!source || !target) {
         continue;
       }
 
-      const geometry = new THREE.BufferGeometry().setFromPoints([source, target]);
+      const geometry = new THREE.BufferGeometry();
+      const positions = new Float32Array(6);
+      geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
       const isAI = edge.type === 'ai_suggested';
       const material = new THREE.LineBasicMaterial({
         color: isAI ? AI_COLOR : EXPLICIT_COLOR,
@@ -252,17 +331,18 @@ export class MnemosyneModule implements AtlasModule {
         material,
         reasons: edge.reasons,
         confidence: edge.confidence,
-        visible: true
+        visible: true,
+        source,
+        target,
+        positionAttr: geometry.getAttribute('position') as THREE.BufferAttribute
       };
 
       if (isAI) {
-        const mid = source.clone().add(target).multiplyScalar(0.5);
         const handleMaterial = new THREE.MeshStandardMaterial({
           color: AI_COLOR,
           emissive: 0x064e3b
         });
         const handle = new THREE.Mesh(this.handleGeometry!, handleMaterial);
-        handle.position.copy(mid);
         handle.name = `AI Edge ${edge.source}-${edge.target}`;
         this.group?.add(handle);
 
@@ -282,6 +362,24 @@ export class MnemosyneModule implements AtlasModule {
       }
 
       this.edges.push(entry);
+    }
+
+    this.updateEdges();
+  }
+
+  private updateEdges(): void {
+    for (const edge of this.edges) {
+      if (!edge.source || !edge.target || !edge.positionAttr) {
+        continue;
+      }
+      const source = edge.source.mesh.position;
+      const target = edge.target.mesh.position;
+      edge.positionAttr.setXYZ(0, source.x, source.y, source.z);
+      edge.positionAttr.setXYZ(1, target.x, target.y, target.z);
+      edge.positionAttr.needsUpdate = true;
+      if (edge.handle) {
+        edge.handle.position.copy(source).add(target).multiplyScalar(0.5);
+      }
     }
   }
 
@@ -477,6 +575,7 @@ export class MnemosyneModule implements AtlasModule {
     }
 
     this.activeEdge = edge;
+    this.positionPanelInFront();
     this.panelGroup.visible = true;
   }
 
@@ -485,6 +584,18 @@ export class MnemosyneModule implements AtlasModule {
       this.panelGroup.visible = false;
     }
     this.activeEdge = undefined;
+  }
+
+  private positionPanelInFront(distance = 1.2): void {
+    if (!this.panelGroup || !this.camera) {
+      return;
+    }
+    this.camera.getWorldPosition(this.panelPosition);
+    this.camera.getWorldDirection(this.panelDirection);
+    this.panelGroup.position
+      .copy(this.panelPosition)
+      .add(this.panelDirection.multiplyScalar(distance))
+      .add(this.panelOffset);
   }
 
   private disposePanel(): void {

@@ -123,7 +123,7 @@ Deliverables:
 ## WP-10: Mnemosyne Scale + Visual Upgrade
 Goal: Move from placeholder graph to demo-scale knowledge space.
 Entry: WP-09 complete.
-Status: Pending.
+Status: Complete.
 Exit criteria:
 - 150+ nodes render with readable labels in VR.
 - Explicit vs AI edges are visually distinct and legible.
