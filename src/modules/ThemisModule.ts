@@ -39,6 +39,12 @@ export class ThemisModule implements AtlasModule {
   private placeMaterial?: THREE.MeshStandardMaterial;
   private transitionMaterial?: THREE.MeshStandardMaterial;
   private arcMaterial?: THREE.LineBasicMaterial;
+  private labels: TextSprite[] = [];
+  private chaosGroup?: THREE.Group;
+  private chaosOrbs: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>[] = [];
+  private chaosVelocities: THREE.Vector3[] = [];
+  private chaosLines?: THREE.LineSegments<THREE.BufferGeometry, THREE.LineBasicMaterial>;
+  private chaosPositions?: THREE.BufferAttribute;
   private script: ThemisEvent[] = [];
   private scriptIndex = 0;
   private elapsed = 0;
@@ -52,6 +58,7 @@ export class ThemisModule implements AtlasModule {
 
   private panelGroup?: THREE.Group;
   private panelLabel?: TextSprite;
+  private panelSources: TextSprite[] = [];
   private panelButtons: PanelButton[] = [];
   private panelBackground?: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
 
@@ -81,6 +88,7 @@ export class ThemisModule implements AtlasModule {
     if (!this.active) {
       return;
     }
+    this.updateChaos(dt);
     if (this.panelGroup && this.camera) {
       this.panelGroup.lookAt(this.camera.position);
     }
@@ -126,12 +134,33 @@ export class ThemisModule implements AtlasModule {
     this.group?.clear();
     this.group?.removeFromParent();
     this.group = undefined;
+
+    for (const label of this.labels) {
+      label.dispose();
+    }
+    this.labels = [];
+
+    this.chaosLines?.geometry.dispose();
+    this.chaosLines?.material.dispose();
+    this.chaosLines?.removeFromParent();
+    this.chaosLines = undefined;
+    this.chaosPositions = undefined;
+    for (const orb of this.chaosOrbs) {
+      orb.geometry.dispose();
+      orb.material.dispose();
+      orb.removeFromParent();
+    }
+    this.chaosOrbs = [];
+    this.chaosVelocities = [];
+    this.chaosGroup?.removeFromParent();
+    this.chaosGroup = undefined;
   }
 
   private buildScene(data: Awaited<ReturnType<typeof loadThemisData>>['data']): void {
     if (!this.group) {
       return;
     }
+    this.group.position.set(0.9, 0, 0);
     this.placeMaterial = new THREE.MeshStandardMaterial({ color: 0x0ea5e9 });
     this.transitionMaterial = new THREE.MeshStandardMaterial({ color: 0x6366f1 });
     this.placeGeometry = new THREE.SphereGeometry(0.12, 16, 16);
@@ -168,6 +197,16 @@ export class ThemisModule implements AtlasModule {
       const line = new THREE.Line(geometry, this.arcMaterial);
       this.group.add(line);
     }
+
+    const cpnLabel = new TextSprite('CPN FLOW', {
+      fontSize: 26,
+      background: 'rgba(15, 23, 42, 0.4)'
+    });
+    cpnLabel.sprite.position.set(0.9, 1.65, 0);
+    this.group.add(cpnLabel.sprite);
+    this.labels.push(cpnLabel);
+
+    this.buildChaos();
   }
 
   private spawnToken(): void {
@@ -226,7 +265,8 @@ export class ThemisModule implements AtlasModule {
     }
     this.moveTime += dt;
     const t = Math.min(this.moveTime / this.moveDuration, 1);
-    this.token.position.lerpVectors(this.moveFrom, this.moveTo, t);
+    const eased = t * t * (3 - 2 * t);
+    this.token.position.lerpVectors(this.moveFrom, this.moveTo, eased);
     if (t >= 1) {
       this.moving = false;
     }
@@ -248,7 +288,7 @@ export class ThemisModule implements AtlasModule {
       opacity: 0.85,
       side: THREE.DoubleSide
     });
-    const panelMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.2), panelMaterial);
+    const panelMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.42), panelMaterial);
     panelMesh.name = 'ThemisPanel';
     panelGroup.add(panelMesh);
     this.panelBackground = panelMesh;
@@ -257,13 +297,28 @@ export class ThemisModule implements AtlasModule {
       fontSize: 24,
       background: 'rgba(15, 23, 42, 0.6)'
     });
-    this.panelLabel.sprite.position.set(0, 0.05, 0.02);
+    this.panelLabel.sprite.position.set(0, 0.12, 0.02);
     panelGroup.add(this.panelLabel.sprite);
+
+    const sourceOffsets = [0.04, -0.02, -0.08, -0.14, -0.2];
+    this.panelSources = sourceOffsets.map((y) => {
+      const line = new TextSprite('', {
+        fontSize: 18,
+        background: 'rgba(15, 23, 42, 0.35)',
+        borderWidth: 0,
+        width: 520,
+        height: 64,
+        scale: 0.0011
+      });
+      line.sprite.position.set(0, y, 0.02);
+      panelGroup.add(line.sprite);
+      return line;
+    });
 
     const continueButton = this.createPanelButton(
       context,
       'Continue',
-      new THREE.Vector3(0, -0.05, 0.02),
+      new THREE.Vector3(0, -0.26, 0.02),
       0x2563eb,
       () => {
         this.hidePanel();
@@ -325,6 +380,16 @@ export class ThemisModule implements AtlasModule {
       return;
     }
     this.panelLabel.update(label);
+    this.panelSources.forEach((line) => line.setVisible(false));
+    const sources = this.getCheckpointSources();
+    sources.forEach((source, index) => {
+      const line = this.panelSources[index];
+      if (!line) {
+        return;
+      }
+      line.update(source);
+      line.setVisible(true);
+    });
     this.positionPanelInFront();
     this.panelGroup.visible = true;
   }
@@ -360,6 +425,10 @@ export class ThemisModule implements AtlasModule {
 
     this.panelLabel?.dispose();
     this.panelLabel = undefined;
+    for (const line of this.panelSources) {
+      line.dispose();
+    }
+    this.panelSources = [];
 
     this.panelBackground?.material.dispose();
     this.panelBackground?.geometry.dispose();
@@ -381,5 +450,100 @@ export class ThemisModule implements AtlasModule {
     const from = this.token.position.clone();
     this.startMove(from, target.position);
     this.resumeTargetId = undefined;
+  }
+
+  private getCheckpointSources(): string[] {
+    const event = this.script[this.scriptIndex - 1];
+    const sources = event?.data?.sources;
+    if (Array.isArray(sources)) {
+      return sources.map((item) => String(item));
+    }
+    return [];
+  }
+
+  private buildChaos(): void {
+    if (!this.group) {
+      return;
+    }
+    const chaosGroup = new THREE.Group();
+    chaosGroup.position.set(-0.9, 0, 0);
+    chaosGroup.name = 'Chaos';
+    this.group.add(chaosGroup);
+    this.chaosGroup = chaosGroup;
+
+    const chaosLabel = new TextSprite('CHAOS', {
+      fontSize: 26,
+      background: 'rgba(15, 23, 42, 0.4)'
+    });
+    chaosLabel.sprite.position.set(-0.9, 1.65, 0);
+    this.group.add(chaosLabel.sprite);
+    this.labels.push(chaosLabel);
+
+    const orbGeometry = new THREE.SphereGeometry(0.06, 16, 16);
+    const orbMaterial = new THREE.MeshStandardMaterial({
+      color: 0xef4444,
+      emissive: 0x7f1d1d
+    });
+
+    const bounds = { x: 0.5, y: 0.4, z: 0.4 };
+    for (let i = 0; i < 8; i += 1) {
+      const orb = new THREE.Mesh(orbGeometry, orbMaterial.clone());
+      orb.position.set(
+        (Math.random() * 2 - 1) * bounds.x,
+        1.2 + (Math.random() * 2 - 1) * bounds.y,
+        (Math.random() * 2 - 1) * bounds.z
+      );
+      chaosGroup.add(orb);
+      this.chaosOrbs.push(orb);
+      this.chaosVelocities.push(
+        new THREE.Vector3(
+          (Math.random() * 2 - 1) * 0.25,
+          (Math.random() * 2 - 1) * 0.2,
+          (Math.random() * 2 - 1) * 0.25
+        )
+      );
+    }
+
+    const linePositions = new Float32Array(8 * 6);
+    const lineGeometry = new THREE.BufferGeometry();
+    this.chaosPositions = new THREE.BufferAttribute(linePositions, 3);
+    lineGeometry.setAttribute('position', this.chaosPositions);
+    const lineMaterial = new THREE.LineBasicMaterial({
+      color: 0xf97316,
+      transparent: true,
+      opacity: 0.5
+    });
+    const lines = new THREE.LineSegments(lineGeometry, lineMaterial);
+    chaosGroup.add(lines);
+    this.chaosLines = lines;
+  }
+
+  private updateChaos(dt: number): void {
+    if (!this.chaosGroup || !this.chaosPositions) {
+      return;
+    }
+    const bounds = { x: 0.55, y: 0.45, z: 0.45 };
+    for (let i = 0; i < this.chaosOrbs.length; i += 1) {
+      const orb = this.chaosOrbs[i];
+      const velocity = this.chaosVelocities[i];
+      orb.position.addScaledVector(velocity, dt);
+      if (Math.abs(orb.position.x) > bounds.x) {
+        velocity.x *= -1;
+      }
+      if (Math.abs(orb.position.y - 1.2) > bounds.y) {
+        velocity.y *= -1;
+      }
+      if (Math.abs(orb.position.z) > bounds.z) {
+        velocity.z *= -1;
+      }
+    }
+
+    for (let i = 0; i < 8; i += 1) {
+      const a = this.chaosOrbs[i];
+      const b = this.chaosOrbs[(i + 2) % this.chaosOrbs.length];
+      this.chaosPositions.setXYZ(i * 2, a.position.x, a.position.y, a.position.z);
+      this.chaosPositions.setXYZ(i * 2 + 1, b.position.x, b.position.y, b.position.z);
+    }
+    this.chaosPositions.needsUpdate = true;
   }
 }

@@ -135,7 +135,7 @@ Deliverables:
 ## WP-11: Themis Narrative Upgrade
 Goal: Match the Agent Council narrative beats.
 Entry: WP-10 complete.
-Status: Pending.
+Status: Complete.
 Exit criteria:
 - Chaos vs. CPN contrast visualization implemented.
 - Checkpoint panel shows richer source list content.

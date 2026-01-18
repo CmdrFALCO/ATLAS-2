@@ -43,7 +43,17 @@
     {
       "time": 4.6,
       "type": "checkpoint_show",
-      "data": { "label": "Approve sources", "resumeTo": "p_review" }
+      "data": {
+        "label": "Approve sources",
+        "resumeTo": "p_review",
+        "sources": [
+          "Nature Energy: Thermal Runaway (2024)",
+          "IEEE: Cell Format Comparison (2023)",
+          "Internal: Project Helix Notes",
+          "ArXiv: Preprint (unreviewed)",
+          "Blog: Low reliability"
+        ]
+      }
     }
   ]
 }
