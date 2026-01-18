@@ -51,6 +51,7 @@ Deliverables:
 ## WP-04: Data and Placeholders
 Goal: Data loading and placeholder content pipeline.
 Entry: WP-03 complete.
+Status: Complete.
 Exit criteria:
 - JSON data loading works for at least one module.
 - Placeholder generator can produce basic datasets.

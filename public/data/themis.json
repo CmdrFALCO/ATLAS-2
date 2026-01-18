@@ -1,0 +1,44 @@
+{
+  "places": [
+    { "id": "p_start", "label": "Start", "position": { "x": -1, "y": 1, "z": 0 } },
+    { "id": "p_sources", "label": "Sources", "position": { "x": 0, "y": 1, "z": 0 } },
+    { "id": "p_review", "label": "Review", "position": { "x": 1, "y": 1, "z": 0 } }
+  ],
+  "transitions": [
+    {
+      "id": "t_research",
+      "label": "Research",
+      "isHumanCheckpoint": false,
+      "position": { "x": -0.5, "y": 1, "z": 0 }
+    },
+    {
+      "id": "t_checkpoint",
+      "label": "Checkpoint",
+      "isHumanCheckpoint": true,
+      "position": { "x": 0.5, "y": 1, "z": 0 }
+    }
+  ],
+  "arcs": [
+    { "from": "p_start", "to": "t_research" },
+    { "from": "t_research", "to": "p_sources" },
+    { "from": "p_sources", "to": "t_checkpoint" },
+    { "from": "t_checkpoint", "to": "p_review" }
+  ],
+  "script": [
+    {
+      "time": 0,
+      "type": "token_move",
+      "data": { "from": "p_start", "to": "t_research" }
+    },
+    {
+      "time": 2,
+      "type": "token_move",
+      "data": { "from": "p_sources", "to": "t_checkpoint" }
+    },
+    {
+      "time": 4,
+      "type": "checkpoint_show",
+      "data": { "label": "Approve sources" }
+    }
+  ]
+}

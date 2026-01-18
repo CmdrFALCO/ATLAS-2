@@ -1,0 +1,40 @@
+{
+  "variants": [
+    {
+      "id": "base-48",
+      "file": "module-48.gltf",
+      "params": {
+        "cellCount": 48,
+        "cooling": "liquid",
+        "energy_kwh": 11.2,
+        "mass_kg": 82,
+        "cost_relative": 1.0,
+        "thermal_headroom": "good"
+      }
+    },
+    {
+      "id": "variant-52",
+      "file": "module-52.gltf",
+      "params": {
+        "cellCount": 52,
+        "cooling": "liquid",
+        "energy_kwh": 12.1,
+        "mass_kg": 88,
+        "cost_relative": 1.08,
+        "thermal_headroom": "good"
+      }
+    }
+  ],
+  "aiSuggestion": {
+    "id": "ai-54-optimized",
+    "file": "module-54.gltf",
+    "params": {
+      "cellCount": 54,
+      "cooling": "liquid",
+      "energy_kwh": 13.2,
+      "mass_kg": 93,
+      "cost_relative": 1.12,
+      "thermal_headroom": "moderate"
+    }
+  }
+}

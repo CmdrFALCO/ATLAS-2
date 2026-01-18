@@ -1,0 +1,86 @@
+{
+  "nodes": [
+    {
+      "id": "n1",
+      "title": "Thermal Runaway Prevention",
+      "clusterId": "thermal",
+      "connectionCount": 3,
+      "isAISuggested": false
+    },
+    {
+      "id": "n2",
+      "title": "Cooling System Trade-offs",
+      "clusterId": "thermal",
+      "connectionCount": 2,
+      "isAISuggested": false
+    },
+    {
+      "id": "n3",
+      "title": "Cell Format Trade-offs",
+      "clusterId": "strategy",
+      "connectionCount": 2,
+      "isAISuggested": true
+    },
+    {
+      "id": "n4",
+      "title": "Electrolyte Comparison",
+      "clusterId": "chemistry",
+      "connectionCount": 1,
+      "isAISuggested": false
+    },
+    {
+      "id": "n5",
+      "title": "Assembly Line Constraints",
+      "clusterId": "manufacturing",
+      "connectionCount": 1,
+      "isAISuggested": false
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "source": "n1",
+      "target": "n2",
+      "type": "explicit"
+    },
+    {
+      "id": "e2",
+      "source": "n1",
+      "target": "n3",
+      "type": "ai_suggested",
+      "confidence": 0.78,
+      "reasons": [
+        "Both discuss heat dissipation",
+        "Surface area mentioned"
+      ]
+    },
+    {
+      "id": "e3",
+      "source": "n4",
+      "target": "n3",
+      "type": "explicit"
+    }
+  ],
+  "clusters": [
+    {
+      "id": "thermal",
+      "label": "Thermal",
+      "color": "#ef4444"
+    },
+    {
+      "id": "chemistry",
+      "label": "Chemistry",
+      "color": "#3b82f6"
+    },
+    {
+      "id": "manufacturing",
+      "label": "Manufacturing",
+      "color": "#22c55e"
+    },
+    {
+      "id": "strategy",
+      "label": "Strategy",
+      "color": "#f59e0b"
+    }
+  ]
+}
