@@ -6,6 +6,7 @@ export interface ModuleContext {
   camera: THREE.PerspectiveCamera;
   renderer: THREE.WebGLRenderer;
   interaction: InteractionSystem;
+  uiRoot: HTMLElement;
 }
 
 export interface AtlasModule {

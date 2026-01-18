@@ -50,7 +50,8 @@ export class AtlasEngine {
       scene: this.scene,
       camera: this.camera,
       renderer: this.renderer,
-      interaction: this.interaction
+      interaction: this.interaction,
+      uiRoot: this.container
     };
     this.modules = new ModuleLoader(context);
 

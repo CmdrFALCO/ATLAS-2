@@ -63,6 +63,7 @@ Deliverables:
 ## WP-05: Mnemosyne Demo
 Goal: Knowledge graph demo with AI suggestion workflow.
 Entry: WP-04 complete.
+Status: Complete.
 Exit criteria:
 - Graph renders with clusters and labels.
 - AI-suggested edges are visually distinct.
