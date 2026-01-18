@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import type { ModuleContext } from '../modules/AtlasModule';
-import { VRButton } from 'three/examples/jsm/webxr/VRButton.js';
 import { InteractionSystem } from './InteractionSystem';
 import { ModuleLoader } from './ModuleLoader';
 
@@ -85,10 +84,7 @@ export class AtlasEngine {
     }
     this.xrEnabled = true;
     this.renderer.xr.enabled = true;
-    const button = VRButton.createButton(this.renderer);
-    button.style.position = 'absolute';
-    button.style.right = '16px';
-    button.style.bottom = '16px';
+    const button = this.createVRButton();
     this.container.appendChild(button);
 
     const controller1 = this.renderer.xr.getController(0);
@@ -152,6 +148,78 @@ export class AtlasEngine {
     line.name = 'xr-ray';
     line.scale.z = 5;
     controller.add(line);
+  }
+
+  private createVRButton(): HTMLButtonElement {
+    const button = document.createElement('button');
+    button.textContent = 'ENTER VR';
+    button.style.position = 'absolute';
+    button.style.right = '16px';
+    button.style.bottom = '16px';
+    button.style.padding = '10px 12px';
+    button.style.borderRadius = '8px';
+    button.style.border = '1px solid rgba(148, 163, 184, 0.6)';
+    button.style.background = 'rgba(15, 23, 42, 0.8)';
+    button.style.color = '#e2e8f0';
+    button.style.cursor = 'pointer';
+    button.style.zIndex = '999';
+
+    let currentSession: XRSession | null = null;
+
+    const onSessionStarted = async (session: XRSession) => {
+      currentSession = session;
+      currentSession.addEventListener('end', onSessionEnded);
+      await this.renderer.xr.setSession(session);
+      button.textContent = 'EXIT VR';
+    };
+
+    const onSessionEnded = () => {
+      if (!currentSession) {
+        return;
+      }
+      currentSession.removeEventListener('end', onSessionEnded);
+      currentSession = null;
+      button.textContent = 'ENTER VR';
+    };
+
+    const sessionInit: XRSessionInit = {
+      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers', 'dom-overlay'],
+      domOverlay: { root: this.container }
+    };
+
+    const fallbackInit: XRSessionInit = {
+      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking', 'layers']
+    };
+
+    button.onclick = () => {
+      if (!navigator.xr) {
+        return;
+      }
+      if (currentSession) {
+        currentSession.end();
+        return;
+      }
+      navigator.xr
+        .requestSession('immersive-vr', sessionInit)
+        .then(onSessionStarted)
+        .catch(() =>
+          navigator.xr?.requestSession('immersive-vr', fallbackInit).then(onSessionStarted)
+        );
+    };
+
+    if (navigator.xr) {
+      navigator.xr.isSessionSupported('immersive-vr').then((supported) => {
+        if (!supported) {
+          button.textContent = 'VR NOT SUPPORTED';
+          button.disabled = true;
+        }
+      });
+    } else {
+      button.textContent = 'VR NOT AVAILABLE';
+      button.disabled = true;
+    }
+
+    return button;
   }
 
   private onResize = (): void => {

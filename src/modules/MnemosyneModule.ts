@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { AtlasModule, ModuleContext } from './AtlasModule';
 import { loadMnemosyneData } from '../data';
+import { TextSprite } from '../ui/TextSprite';
 
 const EXPLICIT_COLOR = 0x3b82f6;
 const AI_COLOR = 0x22c55e;
@@ -35,9 +36,25 @@ interface LabelEntry {
   texture: THREE.Texture;
 }
 
+interface PanelButton {
+  group: THREE.Group;
+  mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
+  material: THREE.MeshStandardMaterial;
+  label: TextSprite;
+  unsubscribe: () => void;
+}
+
 export class MnemosyneModule implements AtlasModule {
   id = 'mnemosyne';
   private group?: THREE.Group;
+  private camera?: THREE.Camera;
+  private panelGroup?: THREE.Group;
+  private panelTitle?: TextSprite;
+  private panelConnection?: TextSprite;
+  private panelConfidence?: TextSprite;
+  private panelReasons: TextSprite[] = [];
+  private panelButtons: PanelButton[] = [];
+  private panelBackground?: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
   private nodeGeometry?: THREE.SphereGeometry;
   private handleGeometry?: THREE.SphereGeometry;
   private nodes: NodeEntry[] = [];
@@ -45,19 +62,11 @@ export class MnemosyneModule implements AtlasModule {
   private labels: LabelEntry[] = [];
   private active = false;
   private pulseTime = 0;
-
-  private panel?: HTMLDivElement;
-  private panelTitle?: HTMLDivElement;
-  private panelConnection?: HTMLDivElement;
-  private panelReasons?: HTMLUListElement;
-  private panelConfidence?: HTMLDivElement;
-  private panelAccept?: HTMLButtonElement;
-  private panelReject?: HTMLButtonElement;
-  private panelClose?: HTMLButtonElement;
   private activeEdge?: EdgeEntry;
 
   onLoad(context: ModuleContext): void {
     this.active = true;
+    this.camera = context.camera;
     const group = new THREE.Group();
     group.name = 'Mnemosyne';
     context.scene.add(group);
@@ -81,13 +90,15 @@ export class MnemosyneModule implements AtlasModule {
         edge.handle.scale.setScalar(pulse);
       }
     }
+    if (this.panelGroup && this.camera) {
+      this.panelGroup.lookAt(this.camera.position);
+    }
   }
 
   onUnload(): void {
     this.active = false;
     this.hidePanel();
-    this.panel?.remove();
-    this.panel = undefined;
+    this.disposePanel();
 
     for (const edge of this.edges) {
       edge.handleUnsubscribe?.();
@@ -314,112 +325,134 @@ export class MnemosyneModule implements AtlasModule {
   }
 
   private ensurePanel(context: ModuleContext): void {
-    if (this.panel) {
+    if (this.panelGroup) {
       return;
     }
-    const panel = document.createElement('div');
-    panel.style.position = 'absolute';
-    panel.style.right = '16px';
-    panel.style.top = '16px';
-    panel.style.width = '320px';
-    panel.style.padding = '12px';
-    panel.style.background = 'rgba(15, 23, 42, 0.92)';
-    panel.style.border = '1px solid rgba(148, 163, 184, 0.5)';
-    panel.style.borderRadius = '12px';
-    panel.style.color = '#e2e8f0';
-    panel.style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
-    panel.style.display = 'none';
+    const panelGroup = new THREE.Group();
+    panelGroup.position.set(0.8, 1.4, -1.2);
+    panelGroup.visible = false;
+    context.scene.add(panelGroup);
+    this.panelGroup = panelGroup;
 
-    const title = document.createElement('div');
-    title.textContent = 'AI-Suggested Connection';
-    title.style.fontWeight = '600';
-    title.style.marginBottom = '8px';
-    panel.appendChild(title);
+    const panelMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      transparent: true,
+      opacity: 0.85,
+      side: THREE.DoubleSide
+    });
+    const panelMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.7, 0.5), panelMaterial);
+    panelMesh.name = 'MnemosynePanel';
+    panelGroup.add(panelMesh);
+    this.panelBackground = panelMesh;
 
-    const connection = document.createElement('div');
-    connection.style.marginBottom = '8px';
-    panel.appendChild(connection);
+    this.panelTitle = new TextSprite('AI Suggested Connection', {
+      fontSize: 28,
+      background: 'rgba(15, 23, 42, 0.6)'
+    });
+    this.panelTitle.sprite.position.set(0, 0.18, 0.02);
+    panelGroup.add(this.panelTitle.sprite);
 
-    const reasonsLabel = document.createElement('div');
-    reasonsLabel.textContent = 'Why this was suggested:';
-    reasonsLabel.style.marginBottom = '4px';
-    panel.appendChild(reasonsLabel);
+    this.panelConnection = new TextSprite('Connection', {
+      fontSize: 24,
+      background: 'rgba(15, 23, 42, 0.6)'
+    });
+    this.panelConnection.sprite.position.set(0, 0.08, 0.02);
+    panelGroup.add(this.panelConnection.sprite);
 
-    const reasons = document.createElement('ul');
-    reasons.style.margin = '0 0 8px 16px';
-    reasons.style.padding = '0';
-    panel.appendChild(reasons);
+    this.panelReasons = [0, 1, 2].map((index) => {
+      const reason = new TextSprite('', {
+        fontSize: 20,
+        background: 'rgba(15, 23, 42, 0.4)',
+        borderWidth: 0
+      });
+      reason.sprite.position.set(0, 0.02 - index * 0.06, 0.02);
+      panelGroup.add(reason.sprite);
+      return reason;
+    });
 
-    const confidence = document.createElement('div');
-    confidence.style.marginBottom = '12px';
-    panel.appendChild(confidence);
+    this.panelConfidence = new TextSprite('Confidence', {
+      fontSize: 22,
+      background: 'rgba(15, 23, 42, 0.4)'
+    });
+    this.panelConfidence.sprite.position.set(0, -0.15, 0.02);
+    panelGroup.add(this.panelConfidence.sprite);
 
-    const actions = document.createElement('div');
-    actions.style.display = 'flex';
-    actions.style.gap = '8px';
-
-    const accept = document.createElement('button');
-    accept.textContent = 'Accept';
-    accept.style.flex = '1';
-    accept.style.padding = '6px 10px';
-    accept.style.borderRadius = '8px';
-    accept.style.border = '1px solid rgba(34, 197, 94, 0.6)';
-    accept.style.background = 'rgba(34, 197, 94, 0.2)';
-    accept.style.color = '#dcfce7';
-
-    const reject = document.createElement('button');
-    reject.textContent = 'Reject';
-    reject.style.flex = '1';
-    reject.style.padding = '6px 10px';
-    reject.style.borderRadius = '8px';
-    reject.style.border = '1px solid rgba(239, 68, 68, 0.6)';
-    reject.style.background = 'rgba(239, 68, 68, 0.2)';
-    reject.style.color = '#fee2e2';
-
-    const close = document.createElement('button');
-    close.textContent = 'Close';
-    close.style.flex = '1';
-    close.style.padding = '6px 10px';
-    close.style.borderRadius = '8px';
-    close.style.border = '1px solid rgba(148, 163, 184, 0.4)';
-    close.style.background = 'rgba(51, 65, 85, 0.4)';
-    close.style.color = '#e2e8f0';
-
-    actions.appendChild(accept);
-    actions.appendChild(reject);
-    actions.appendChild(close);
-    panel.appendChild(actions);
-
-    accept.addEventListener('click', () => {
-      if (this.activeEdge) {
-        this.acceptEdge(this.activeEdge);
+    const acceptButton = this.createPanelButton(
+      context,
+      'Accept',
+      new THREE.Vector3(-0.18, -0.22, 0.02),
+      0x16a34a,
+      () => {
+        if (this.activeEdge) {
+          this.acceptEdge(this.activeEdge);
+        }
+        this.hidePanel();
       }
-      this.hidePanel();
-    });
-    reject.addEventListener('click', () => {
-      if (this.activeEdge) {
-        this.rejectEdge(this.activeEdge);
+    );
+    const rejectButton = this.createPanelButton(
+      context,
+      'Reject',
+      new THREE.Vector3(0.18, -0.22, 0.02),
+      0xef4444,
+      () => {
+        if (this.activeEdge) {
+          this.rejectEdge(this.activeEdge);
+        }
+        this.hidePanel();
       }
-      this.hidePanel();
+    );
+
+    this.panelButtons.push(acceptButton, rejectButton);
+    panelGroup.add(acceptButton.group, rejectButton.group);
+  }
+
+  private createPanelButton(
+    context: ModuleContext,
+    label: string,
+    position: THREE.Vector3,
+    color: number,
+    onSelect: () => void
+  ): PanelButton {
+    const group = new THREE.Group();
+    group.position.copy(position);
+
+    const material = new THREE.MeshStandardMaterial({
+      color,
+      emissive: 0x0b1220,
+      side: THREE.DoubleSide
     });
-    close.addEventListener('click', () => {
-      this.hidePanel();
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.07), material);
+    mesh.name = `Button ${label}`;
+    group.add(mesh);
+
+    const text = new TextSprite(label, {
+      fontSize: 20,
+      background: 'rgba(0,0,0,0)',
+      borderWidth: 0,
+      paddingX: 8,
+      paddingY: 6,
+      scale: 0.0014
+    });
+    text.sprite.position.set(0, 0, 0.01);
+    group.add(text.sprite);
+
+    const unsubscribe = context.interaction.register(mesh, {
+      onHoverStart: () => {
+        material.emissive.setHex(0x1d4ed8);
+      },
+      onHoverEnd: () => {
+        material.emissive.setHex(0x0b1220);
+      },
+      onSelect: () => {
+        onSelect();
+      }
     });
 
-    context.uiRoot.appendChild(panel);
-
-    this.panel = panel;
-    this.panelTitle = title;
-    this.panelConnection = connection;
-    this.panelReasons = reasons;
-    this.panelConfidence = confidence;
-    this.panelAccept = accept;
-    this.panelReject = reject;
-    this.panelClose = close;
+    return { group, mesh, material, label: text, unsubscribe };
   }
 
   private openPanel(edge: EdgeEntry, titles: Map<string, string>): void {
-    if (!this.panel || !this.panelConnection || !this.panelReasons || !this.panelConfidence) {
+    if (!this.panelGroup || !this.panelConnection || !this.panelConfidence) {
       return;
     }
     if (!edge.visible) {
@@ -427,32 +460,62 @@ export class MnemosyneModule implements AtlasModule {
     }
     const sourceTitle = titles.get(edge.sourceId) ?? edge.sourceId;
     const targetTitle = titles.get(edge.targetId) ?? edge.targetId;
-    this.panelConnection.textContent = `${sourceTitle} ? ${targetTitle}`;
+    this.panelConnection.update(`${sourceTitle} <-> ${targetTitle}`);
 
-    this.panelReasons.innerHTML = '';
     const reasons = edge.reasons?.length ? edge.reasons : ['No additional context provided.'];
-    for (const reason of reasons) {
-      const item = document.createElement('li');
-      item.textContent = reason;
-      this.panelReasons.appendChild(item);
-    }
+    this.panelReasons.forEach((reasonSprite, index) => {
+      const text = reasons[index] ?? '';
+      reasonSprite.update(text || '');
+      reasonSprite.setVisible(Boolean(text));
+    });
 
     if (edge.confidence !== undefined) {
       const percent = Math.round(edge.confidence * 100);
-      this.panelConfidence.textContent = `Confidence: ${percent}%`;
+      this.panelConfidence.update(`Confidence: ${percent}%`);
     } else {
-      this.panelConfidence.textContent = 'Confidence: n/a';
+      this.panelConfidence.update('Confidence: n/a');
     }
 
     this.activeEdge = edge;
-    this.panel.style.display = 'block';
+    this.panelGroup.visible = true;
   }
 
   private hidePanel(): void {
-    if (this.panel) {
-      this.panel.style.display = 'none';
+    if (this.panelGroup) {
+      this.panelGroup.visible = false;
     }
     this.activeEdge = undefined;
+  }
+
+  private disposePanel(): void {
+    for (const button of this.panelButtons) {
+      button.unsubscribe();
+      button.material.dispose();
+      button.mesh.geometry.dispose();
+      button.label.dispose();
+      button.group.removeFromParent();
+    }
+    this.panelButtons = [];
+
+    this.panelTitle?.dispose();
+    this.panelConnection?.dispose();
+    this.panelConfidence?.dispose();
+    this.panelTitle = undefined;
+    this.panelConnection = undefined;
+    this.panelConfidence = undefined;
+
+    for (const reason of this.panelReasons) {
+      reason.dispose();
+    }
+    this.panelReasons = [];
+
+    this.panelBackground?.material.dispose();
+    this.panelBackground?.geometry.dispose();
+    this.panelBackground?.removeFromParent();
+    this.panelBackground = undefined;
+
+    this.panelGroup?.removeFromParent();
+    this.panelGroup = undefined;
   }
 
   private acceptEdge(edge: EdgeEntry): void {

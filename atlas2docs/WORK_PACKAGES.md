@@ -99,6 +99,7 @@ Deliverables:
 ## WP-08: Polish and QA
 Goal: Demo stability and basic polish.
 Entry: WP-07 complete.
+Status: Complete.
 Exit criteria:
 - No known bugs or console errors.
 - Core flows for all three demos are stable.

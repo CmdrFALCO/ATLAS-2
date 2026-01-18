@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { AtlasModule, ModuleContext } from './AtlasModule';
 import { loadThemisData } from '../data';
+import { TextSprite } from '../ui/TextSprite';
 
 interface ThemisNode {
   id: string;
@@ -13,9 +14,18 @@ interface ThemisEvent {
   data: Record<string, unknown>;
 }
 
+interface PanelButton {
+  group: THREE.Group;
+  mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
+  material: THREE.MeshStandardMaterial;
+  label: TextSprite;
+  unsubscribe: () => void;
+}
+
 export class ThemisModule implements AtlasModule {
   id = 'themis';
   private group?: THREE.Group;
+  private camera?: THREE.Camera;
   private active = false;
   private nodes = new Map<string, ThemisNode>();
   private token?: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
@@ -37,12 +47,14 @@ export class ThemisModule implements AtlasModule {
   private paused = false;
   private resumeTargetId?: string;
 
-  private panel?: HTMLDivElement;
-  private panelLabel?: HTMLDivElement;
-  private panelContinue?: HTMLButtonElement;
+  private panelGroup?: THREE.Group;
+  private panelLabel?: TextSprite;
+  private panelButtons: PanelButton[] = [];
+  private panelBackground?: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
 
   onLoad(context: ModuleContext): void {
     this.active = true;
+    this.camera = context.camera;
     const group = new THREE.Group();
     group.name = 'Themis';
     context.scene.add(group);
@@ -63,7 +75,13 @@ export class ThemisModule implements AtlasModule {
   }
 
   onUpdate(dt: number): void {
-    if (!this.active || this.paused) {
+    if (!this.active) {
+      return;
+    }
+    if (this.panelGroup && this.camera) {
+      this.panelGroup.lookAt(this.camera.position);
+    }
+    if (this.paused) {
       return;
     }
     this.elapsed += dt;
@@ -74,8 +92,7 @@ export class ThemisModule implements AtlasModule {
   onUnload(): void {
     this.active = false;
     this.hidePanel();
-    this.panel?.remove();
-    this.panel = undefined;
+    this.disposePanel();
 
     this.nodes.clear();
     this.script = [];
@@ -213,62 +230,128 @@ export class ThemisModule implements AtlasModule {
   }
 
   private ensurePanel(context: ModuleContext): void {
-    if (this.panel) {
+    if (this.panelGroup) {
       return;
     }
-    const panel = document.createElement('div');
-    panel.style.position = 'absolute';
-    panel.style.right = '16px';
-    panel.style.bottom = '16px';
-    panel.style.width = '280px';
-    panel.style.padding = '12px';
-    panel.style.background = 'rgba(15, 23, 42, 0.92)';
-    panel.style.border = '1px solid rgba(148, 163, 184, 0.5)';
-    panel.style.borderRadius = '12px';
-    panel.style.color = '#e2e8f0';
-    panel.style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
-    panel.style.display = 'none';
+    const panelGroup = new THREE.Group();
+    panelGroup.position.set(0.7, 1.3, -1.1);
+    panelGroup.visible = false;
+    context.scene.add(panelGroup);
+    this.panelGroup = panelGroup;
 
-    const label = document.createElement('div');
-    label.style.fontWeight = '600';
-    label.style.marginBottom = '10px';
-    panel.appendChild(label);
+    const panelMaterial = new THREE.MeshStandardMaterial({
+      color: 0x0f172a,
+      transparent: true,
+      opacity: 0.85,
+      side: THREE.DoubleSide
+    });
+    const panelMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.2), panelMaterial);
+    panelMesh.name = 'ThemisPanel';
+    panelGroup.add(panelMesh);
+    this.panelBackground = panelMesh;
 
-    const button = document.createElement('button');
-    button.textContent = 'Continue';
-    button.style.padding = '6px 10px';
-    button.style.borderRadius = '8px';
-    button.style.border = '1px solid rgba(59, 130, 246, 0.6)';
-    button.style.background = 'rgba(59, 130, 246, 0.2)';
-    button.style.color = '#dbeafe';
+    this.panelLabel = new TextSprite('Checkpoint', {
+      fontSize: 24,
+      background: 'rgba(15, 23, 42, 0.6)'
+    });
+    this.panelLabel.sprite.position.set(0, 0.05, 0.02);
+    panelGroup.add(this.panelLabel.sprite);
 
-    button.addEventListener('click', () => {
-      this.hidePanel();
-      this.paused = false;
-      this.resumeFromCheckpoint();
+    const continueButton = this.createPanelButton(
+      context,
+      'Continue',
+      new THREE.Vector3(0, -0.05, 0.02),
+      0x2563eb,
+      () => {
+        this.hidePanel();
+        this.paused = false;
+        this.resumeFromCheckpoint();
+      }
+    );
+    this.panelButtons.push(continueButton);
+    panelGroup.add(continueButton.group);
+  }
+
+  private createPanelButton(
+    context: ModuleContext,
+    label: string,
+    position: THREE.Vector3,
+    color: number,
+    onSelect: () => void
+  ): PanelButton {
+    const group = new THREE.Group();
+    group.position.copy(position);
+
+    const material = new THREE.MeshStandardMaterial({
+      color,
+      emissive: 0x0b1220,
+      side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.26, 0.07), material);
+    mesh.name = `Button ${label}`;
+    group.add(mesh);
+
+    const text = new TextSprite(label, {
+      fontSize: 20,
+      background: 'rgba(0,0,0,0)',
+      borderWidth: 0,
+      paddingX: 8,
+      paddingY: 6,
+      scale: 0.0014
+    });
+    text.sprite.position.set(0, 0, 0.01);
+    group.add(text.sprite);
+
+    const unsubscribe = context.interaction.register(mesh, {
+      onHoverStart: () => {
+        material.emissive.setHex(0x1d4ed8);
+      },
+      onHoverEnd: () => {
+        material.emissive.setHex(0x0b1220);
+      },
+      onSelect: () => {
+        onSelect();
+      }
     });
 
-    panel.appendChild(button);
-    context.uiRoot.appendChild(panel);
-
-    this.panel = panel;
-    this.panelLabel = label;
-    this.panelContinue = button;
+    return { group, mesh, material, label: text, unsubscribe };
   }
 
   private showPanel(label: string): void {
-    if (!this.panel || !this.panelLabel) {
+    if (!this.panelGroup || !this.panelLabel) {
       return;
     }
-    this.panelLabel.textContent = label;
-    this.panel.style.display = 'block';
+    this.panelLabel.update(label);
+    this.panelGroup.visible = true;
   }
 
   private hidePanel(): void {
-    if (!this.panel) {
+    if (!this.panelGroup) {
       return;
     }
-    this.panel.style.display = 'none';
+    this.panelGroup.visible = false;
+  }
+
+  private disposePanel(): void {
+    for (const button of this.panelButtons) {
+      button.unsubscribe();
+      button.material.dispose();
+      button.mesh.geometry.dispose();
+      button.label.dispose();
+      button.group.removeFromParent();
+    }
+    this.panelButtons = [];
+
+    this.panelLabel?.dispose();
+    this.panelLabel = undefined;
+
+    this.panelBackground?.material.dispose();
+    this.panelBackground?.geometry.dispose();
+    this.panelBackground?.removeFromParent();
+    this.panelBackground = undefined;
+
+    this.panelGroup?.removeFromParent();
+    this.panelGroup = undefined;
   }
 
   private resumeFromCheckpoint(): void {

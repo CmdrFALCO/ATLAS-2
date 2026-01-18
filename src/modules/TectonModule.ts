@@ -1,6 +1,7 @@
 import * as THREE from 'three';
 import type { AtlasModule, ModuleContext } from './AtlasModule';
 import { loadTectonData } from '../data';
+import { TextSprite } from '../ui/TextSprite';
 
 interface VariantParams {
   cellCount: number;
@@ -17,9 +18,18 @@ interface Variant {
   params: VariantParams;
 }
 
+interface PanelButton {
+  group: THREE.Group;
+  mesh: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
+  material: THREE.MeshStandardMaterial;
+  label: TextSprite;
+  unsubscribe: () => void;
+}
+
 export class TectonModule implements AtlasModule {
   id = 'tecton';
   private group?: THREE.Group;
+  private camera?: THREE.Camera;
   private baseMesh?: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
   private aiMesh?: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
   private baseMaterial?: THREE.MeshStandardMaterial;
@@ -27,17 +37,20 @@ export class TectonModule implements AtlasModule {
   private activeVariant?: Variant;
   private aiVariant?: Variant;
   private variants: Variant[] = [];
+  private variantIndex = 0;
   private showAi = false;
   private active = false;
 
-  private panel?: HTMLDivElement;
-  private stats?: HTMLDivElement;
-  private aiStats?: HTMLDivElement;
-  private slider?: HTMLInputElement;
-  private toggleButton?: HTMLButtonElement;
+  private panelGroup?: THREE.Group;
+  private panelBackground?: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
+  private title?: TextSprite;
+  private baseLines: TextSprite[] = [];
+  private aiLines: TextSprite[] = [];
+  private buttons: PanelButton[] = [];
 
   onLoad(context: ModuleContext): void {
     this.active = true;
+    this.camera = context.camera;
     const group = new THREE.Group();
     group.name = 'Tecton';
     context.scene.add(group);
@@ -56,17 +69,14 @@ export class TectonModule implements AtlasModule {
   }
 
   onUpdate(): void {
-    // No-op for now.
+    if (this.panelGroup && this.camera) {
+      this.panelGroup.lookAt(this.camera.position);
+    }
   }
 
   onUnload(): void {
     this.active = false;
-    this.panel?.remove();
-    this.panel = undefined;
-    this.stats = undefined;
-    this.aiStats = undefined;
-    this.slider = undefined;
-    this.toggleButton = undefined;
+    this.disposePanel();
 
     this.baseMesh?.geometry.dispose();
     this.baseMaterial?.dispose();
@@ -91,12 +101,12 @@ export class TectonModule implements AtlasModule {
     if (!this.group || this.variants.length === 0) {
       return;
     }
+    this.variantIndex = 0;
     this.activeVariant = this.variants[0];
     this.updateBaseMesh();
     this.updateAiMesh();
     this.updatePanel();
     this.updateLayout();
-    this.updateSliderState();
   }
 
   private updateBaseMesh(): void {
@@ -167,127 +177,219 @@ export class TectonModule implements AtlasModule {
   }
 
   private ensurePanel(context: ModuleContext): void {
-    if (this.panel) {
+    if (this.panelGroup) {
       return;
     }
-    const panel = document.createElement('div');
-    panel.style.position = 'absolute';
-    panel.style.right = '16px';
-    panel.style.bottom = '16px';
-    panel.style.width = '320px';
-    panel.style.padding = '12px';
-    panel.style.background = 'rgba(15, 23, 42, 0.92)';
-    panel.style.border = '1px solid rgba(148, 163, 184, 0.5)';
-    panel.style.borderRadius = '12px';
-    panel.style.color = '#e2e8f0';
-    panel.style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+    const panelGroup = new THREE.Group();
+    panelGroup.position.set(0.7, 1.35, -1.05);
+    context.scene.add(panelGroup);
+    this.panelGroup = panelGroup;
 
-    const title = document.createElement('div');
-    title.textContent = 'Tecton Configurator';
-    title.style.fontWeight = '600';
-    title.style.marginBottom = '8px';
-    panel.appendChild(title);
-
-    const stats = document.createElement('div');
-    stats.style.marginBottom = '12px';
-    panel.appendChild(stats);
-
-    const sliderLabel = document.createElement('div');
-    sliderLabel.textContent = 'Cell Count Variant';
-    sliderLabel.style.marginBottom = '6px';
-    panel.appendChild(sliderLabel);
-
-    const slider = document.createElement('input');
-    slider.type = 'range';
-    slider.min = '0';
-    slider.max = '0';
-    slider.step = '1';
-    slider.value = '0';
-    slider.style.width = '100%';
-    slider.addEventListener('input', () => {
-      const index = Number(slider.value);
-      const next = this.variants[index];
-      if (!next) {
-        return;
-      }
-      this.activeVariant = next;
-      this.updateBaseMesh();
-      this.updatePanel();
-      this.updateLayout();
+    const panelMaterial = new THREE.MeshStandardMaterial({
+      color: 0x111827,
+      transparent: true,
+      opacity: 0.92,
+      side: THREE.DoubleSide
     });
-    panel.appendChild(slider);
+    const panelMesh = new THREE.Mesh(new THREE.PlaneGeometry(0.82, 1.02), panelMaterial);
+    panelMesh.name = 'TectonPanel';
+    panelGroup.add(panelMesh);
+    this.panelBackground = panelMesh;
 
-    const aiStats = document.createElement('div');
-    aiStats.style.margin = '12px 0';
-    panel.appendChild(aiStats);
-
-    const toggleButton = document.createElement('button');
-    toggleButton.textContent = 'Show AI Suggestion';
-    toggleButton.style.width = '100%';
-    toggleButton.style.padding = '6px 10px';
-    toggleButton.style.borderRadius = '8px';
-    toggleButton.style.border = '1px solid rgba(34, 197, 94, 0.6)';
-    toggleButton.style.background = 'rgba(34, 197, 94, 0.2)';
-    toggleButton.style.color = '#dcfce7';
-    toggleButton.addEventListener('click', () => {
-      this.showAi = !this.showAi;
-      toggleButton.textContent = this.showAi ? 'Hide AI Suggestion' : 'Show AI Suggestion';
-      this.updateAiMesh();
-      this.updateLayout();
-      this.updatePanel();
+    this.title = new TextSprite('Tecton Configurator', {
+      fontSize: 30,
+      background: 'rgba(15, 23, 42, 0.3)',
+      width: 512,
+      height: 96,
+      scale: 0.0016
     });
-    panel.appendChild(toggleButton);
+    this.title.sprite.position.set(0, 0.4, 0.02);
+    panelGroup.add(this.title.sprite);
 
-    context.uiRoot.appendChild(panel);
+    const baseLinePositions = [0.27, 0.19, 0.11, 0.03, -0.05, -0.13];
+    this.baseLines = baseLinePositions.map((y) => {
+      const line = new TextSprite('', {
+        fontSize: 24,
+        background: 'rgba(15, 23, 42, 0.2)',
+        borderWidth: 1,
+        width: 512,
+        height: 80,
+        scale: 0.00145
+      });
+      line.sprite.position.set(0, y, 0.02);
+      panelGroup.add(line.sprite);
+      return line;
+    });
 
-    this.panel = panel;
-    this.stats = stats;
-    this.aiStats = aiStats;
-    this.slider = slider;
-    this.toggleButton = toggleButton;
+    const aiLinePositions = [-0.27, -0.33, -0.39, -0.45];
+    this.aiLines = aiLinePositions.map((y) => {
+      const line = new TextSprite('', {
+        fontSize: 22,
+        background: 'rgba(15, 23, 42, 0.18)',
+        borderWidth: 1,
+        width: 512,
+        height: 72,
+        scale: 0.00135
+      });
+      line.sprite.position.set(0, y, 0.02);
+      panelGroup.add(line.sprite);
+      return line;
+    });
+
+    const prevButton = this.createPanelButton(
+      context,
+      'Prev',
+      new THREE.Vector3(-0.2, -0.53, 0.02),
+      0x475569,
+      () => this.shiftVariant(-1)
+    );
+    const nextButton = this.createPanelButton(
+      context,
+      'Next',
+      new THREE.Vector3(0.2, -0.53, 0.02),
+      0x475569,
+      () => this.shiftVariant(1)
+    );
+    const toggleButton = this.createPanelButton(
+      context,
+      'Toggle AI',
+      new THREE.Vector3(0, -0.61, 0.02),
+      0x16a34a,
+      () => this.toggleAi()
+    );
+
+    this.buttons.push(prevButton, nextButton, toggleButton);
+    panelGroup.add(prevButton.group, nextButton.group, toggleButton.group);
   }
 
-  private updateSliderState(): void {
-    if (!this.slider) {
-      return;
-    }
-    this.slider.max = String(Math.max(this.variants.length - 1, 0));
-    const index = this.activeVariant
-      ? Math.max(this.variants.findIndex((variant) => variant.id === this.activeVariant?.id), 0)
-      : 0;
-    this.slider.value = String(index);
+  private createPanelButton(
+    context: ModuleContext,
+    label: string,
+    position: THREE.Vector3,
+    color: number,
+    onSelect: () => void
+  ): PanelButton {
+    const group = new THREE.Group();
+    group.position.copy(position);
+
+    const material = new THREE.MeshStandardMaterial({
+      color,
+      emissive: 0x0b1220,
+      side: THREE.DoubleSide
+    });
+    const mesh = new THREE.Mesh(new THREE.PlaneGeometry(0.22, 0.07), material);
+    mesh.name = `Button ${label}`;
+    group.add(mesh);
+
+    const text = new TextSprite(label, {
+      fontSize: 18,
+      background: 'rgba(0,0,0,0)',
+      borderWidth: 0,
+      paddingX: 8,
+      paddingY: 6,
+      scale: 0.0014
+    });
+    text.sprite.position.set(0, 0, 0.01);
+    group.add(text.sprite);
+
+    const unsubscribe = context.interaction.register(mesh, {
+      onHoverStart: () => {
+        material.emissive.setHex(0x1d4ed8);
+      },
+      onHoverEnd: () => {
+        material.emissive.setHex(0x0b1220);
+      },
+      onSelect: () => {
+        onSelect();
+      }
+    });
+
+    return { group, mesh, material, label: text, unsubscribe };
   }
 
   private updatePanel(): void {
-    if (!this.stats || !this.aiStats) {
-      return;
-    }
-    if (!this.activeVariant) {
-      this.stats.textContent = 'Loading variants...';
+    if (!this.activeVariant || !this.baseLines.length) {
       return;
     }
     const { params, id } = this.activeVariant;
-    this.stats.innerHTML = [
-      `<div><strong>${id}</strong></div>`,
-      `<div>Cells: ${params.cellCount}</div>`,
-      `<div>Energy: ${params.energy_kwh.toFixed(1)} kWh</div>`,
-      `<div>Mass: ${params.mass_kg.toFixed(1)} kg</div>`,
-      `<div>Cooling: ${params.cooling}</div>`,
-      `<div>Thermal: ${params.thermal_headroom}</div>`
-    ].join('');
+    const baseText = [
+      `Variant: ${id}`,
+      `Cells: ${params.cellCount}`,
+      `Energy: ${params.energy_kwh.toFixed(1)} kWh`,
+      `Mass: ${params.mass_kg.toFixed(1)} kg`,
+      `Cooling: ${params.cooling}`,
+      `Thermal: ${params.thermal_headroom}`
+    ];
+    this.baseLines.forEach((line, index) => {
+      line.update(baseText[index] ?? '');
+      line.setVisible(Boolean(baseText[index]));
+    });
 
     if (this.showAi && this.aiVariant) {
       const ai = this.aiVariant.params;
-      this.aiStats.innerHTML = [
-        `<div style=\"margin-top:8px;\"><strong>AI Suggestion</strong></div>`,
-        `<div>Cells: ${ai.cellCount}</div>`,
-        `<div>Energy: ${ai.energy_kwh.toFixed(1)} kWh</div>`,
-        `<div>Mass: ${ai.mass_kg.toFixed(1)} kg</div>`,
-        `<div>Thermal: ${ai.thermal_headroom}</div>`
-      ].join('');
+      const aiText = [
+        'AI Suggestion',
+        `Cells: ${ai.cellCount}`,
+        `Energy: ${ai.energy_kwh.toFixed(1)} kWh`,
+        `Thermal: ${ai.thermal_headroom}`
+      ];
+      this.aiLines.forEach((line, index) => {
+        line.update(aiText[index] ?? '');
+        line.setVisible(Boolean(aiText[index]));
+      });
     } else {
-      this.aiStats.innerHTML = '';
+      this.aiLines.forEach((line) => line.setVisible(false));
     }
+  }
+
+  private shiftVariant(direction: number): void {
+    if (this.variants.length === 0) {
+      return;
+    }
+    this.variantIndex = (this.variantIndex + direction + this.variants.length) % this.variants.length;
+    this.activeVariant = this.variants[this.variantIndex];
+    this.updateBaseMesh();
+    this.updatePanel();
+    this.updateLayout();
+  }
+
+  private toggleAi(): void {
+    this.showAi = !this.showAi;
+    this.updateAiMesh();
+    this.updateLayout();
+    this.updatePanel();
+  }
+
+  private disposePanel(): void {
+    this.title?.dispose();
+    this.title = undefined;
+
+    for (const line of this.baseLines) {
+      line.dispose();
+    }
+    this.baseLines = [];
+
+    for (const line of this.aiLines) {
+      line.dispose();
+    }
+    this.aiLines = [];
+
+    for (const button of this.buttons) {
+      button.unsubscribe();
+      button.material.dispose();
+      button.mesh.geometry.dispose();
+      button.label.dispose();
+      button.group.removeFromParent();
+    }
+    this.buttons = [];
+
+    this.panelBackground?.material.dispose();
+    this.panelBackground?.geometry.dispose();
+    this.panelBackground?.removeFromParent();
+    this.panelBackground = undefined;
+
+    this.panelGroup?.removeFromParent();
+    this.panelGroup = undefined;
   }
 
   private getThermalColor(headroom: VariantParams['thermal_headroom']): number {
