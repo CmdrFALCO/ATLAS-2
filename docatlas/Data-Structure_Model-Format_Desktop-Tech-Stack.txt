@@ -1,0 +1,166 @@
+
+## 1. Data Structure (ATHENA)
+
+**Storage:** SQLite WASM (via wa-sqlite) running in browser
+
+**Schema (simplified for VR relevance):**
+
+```typescript
+// Notes table
+interface Note {
+  id: string;           // UUID
+  title: string;
+  content: string;      // Tiptap JSON or HTML
+  created_at: string;   // ISO timestamp
+  updated_at: string;
+  embedding?: number[]; // Vector for semantic search
+}
+
+// Connections table
+interface Connection {
+  id: string;
+  source_id: string;    // Note ID
+  target_id: string;    // Note ID
+  connection_type: 'explicit' | 'ai_suggested' | 'cluster';
+  status: 'active' | 'pending' | 'rejected';
+  confidence?: number;  // For AI suggestions (0-1)
+  created_at: string;
+  valid_at: string;     // Bi-temporal: when connection became valid
+  invalid_at?: string;  // Bi-temporal: when connection was invalidated
+}
+
+// Clusters (newer addition)
+interface Cluster {
+  id: string;
+  label: string;
+  note_ids: string[];   // Notes in this cluster
+  created_at: string;
+}
+```
+
+**State management:** Legend-State (reactive store)
+
+**Recommendation for fake data:** Match this schema closely. The VR types can be a subset:
+
+```typescript
+// VR only needs these fields
+interface VRNode {
+  id: string;
+  title: string;
+  clusterId?: string;
+  // Derived/computed:
+  connectionCount: number;
+  isAISuggested: boolean;
+}
+
+interface VREdge {
+  id: string;
+  source: string;       // Maps to source_id
+  target: string;       // Maps to target_id
+  type: 'explicit' | 'ai_suggested' | 'cluster';
+  confidence?: number;
+}
+```
+
+---
+
+## 2. Model Format (CellCAD)
+
+**Current state:** CellCAD can export to STEP (CAD interchange format)
+
+**GLTF export:** Not currently native, but achievable via:
+
+```
+Option A: STEP → FreeCAD → GLTF (manual, one-time for demo)
+Option B: Add GLTF export to generator (pythreejs or trimesh)
+Option C: Use Three.js STEP loader (exists but heavy)
+```
+
+**Recommendation for demo:** Option A is fastest — just need 5-10 variants exported once. Can automate later if demos succeed.
+
+**Action needed:** Export a few module configs to STEP, convert to GLTF using FreeCAD or Blender. Test one in Three.js to validate.
+
+---
+
+## 3. Desktop Tech Stack
+
+**ATHENA:**
+```
+├── React 19
+├── TypeScript
+├── Vite
+├── Legend-State (state)
+├── SQLite WASM (persistence)
+├── React Flow (canvas)
+├── Tiptap (editor)
+├── Tailwind CSS
+└── Runs in browser (no Electron)
+```
+
+**CellCAD:**
+```
+├── Python
+├── CadQuery (parametric geometry)
+├── Jupyter notebooks (current UI)
+└── Not web-based (yet)
+```
+
+**Type sharing opportunity:** Yes, for ATHENA ↔ VR. The VR repo can import types directly or we create a shared `@athena/types` package later.
+
+**Suggested approach:**
+
+```typescript
+// vr-demos/src/shared/types.ts
+
+// Keep in sync with ATHENA schema, but only fields VR needs
+// When live sync happens, this becomes the contract
+
+export interface VRNode {
+  id: string;
+  title: string;
+  clusterId?: string;
+  connectionCount: number;
+  isAISuggested: boolean;
+}
+
+export interface VREdge {
+  id: string;
+  source: string;
+  target: string;
+  type: 'explicit' | 'ai_suggested' | 'cluster';
+  confidence?: number;
+}
+
+export interface VRCluster {
+  id: string;
+  label: string;
+  color: string;
+}
+
+// For CellCAD - no shared types needed (Python backend)
+export interface ModuleVariant {
+  id: string;
+  file: string;
+  params: ModuleParams;
+}
+
+export interface ModuleParams {
+  cellCount: number;
+  cooling: 'liquid' | 'air';
+  energy_kwh: number;
+  mass_kg: number;
+  cost_relative: number;
+  thermal_headroom: 'good' | 'moderate' | 'poor';
+}
+```
+
+---
+
+## Summary
+
+| Question | Answer | Action |
+|----------|--------|--------|
+| ATHENA data | SQLite + Legend-State, schema above | Mirror schema in fake JSON |
+| CellCAD format | STEP export, no native GLTF | Convert via FreeCAD/Blender for demo |
+| Tech stack | ATHENA = React/TS/Vite (web) | Can share types now, same ecosystem |
+| | CellCAD = Python/CadQuery | No type sharing, just JSON manifest |
