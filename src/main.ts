@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import './style.css';
 import { AtlasEngine } from './core';
-import { BeaconModule, MnemosyneModule, StubModule, ThemisModule, TectonModule } from './modules';
+import { BeaconModule, StubModule } from './modules';
 import { ModuleMenu } from './ui/ModuleMenu';
 
 const app = document.querySelector<HTMLDivElement>('#app');
@@ -40,21 +40,45 @@ const interactionDebug = createOverlay('Hover: none', 96, 12);
 const engine = new AtlasEngine(app, { enableXR: true });
 engine.modules.register(new StubModule());
 engine.modules.register(new BeaconModule());
-engine.modules.register(new MnemosyneModule());
-engine.modules.register(new ThemisModule());
-engine.modules.register(new TectonModule());
-engine.modules.load('stub');
+engine.modules.registerLoader('mnemosyne', async () => {
+  const { MnemosyneModule } = await import('./modules/MnemosyneModule');
+  return new MnemosyneModule();
+});
+engine.modules.registerLoader('themis', async () => {
+  const { ThemisModule } = await import('./modules/ThemisModule');
+  return new ThemisModule();
+});
+engine.modules.registerLoader('tecton', async () => {
+  const { TectonModule } = await import('./modules/TectonModule');
+  return new TectonModule();
+});
 const menu = new ModuleMenu(engine.scene, engine.camera, engine.interaction, [
-  { id: 'stub', label: 'Stub Cube', onSelect: () => engine.modules.load('stub') },
-  { id: 'beacon', label: 'Beacon', onSelect: () => engine.modules.load('beacon') },
-  { id: 'mnemosyne', label: 'Mnemosyne', onSelect: () => engine.modules.load('mnemosyne') },
-  { id: 'themis', label: 'Themis', onSelect: () => engine.modules.load('themis') },
-  { id: 'tecton', label: 'Tecton', onSelect: () => engine.modules.load('tecton') }
+  { id: 'stub', label: 'Stub Cube', onSelect: () => loadWithStatus('stub', 'Loading Stub...') },
+  { id: 'beacon', label: 'Beacon', onSelect: () => loadWithStatus('beacon', 'Loading Beacon...') },
+  {
+    id: 'mnemosyne',
+    label: 'Mnemosyne',
+    onSelect: () => loadWithStatus('mnemosyne', 'Loading Mnemosyne...')
+  },
+  { id: 'themis', label: 'Themis', onSelect: () => loadWithStatus('themis', 'Loading Themis...') },
+  { id: 'tecton', label: 'Tecton', onSelect: () => loadWithStatus('tecton', 'Loading Tecton...') }
 ]);
 menu.setPosition(new THREE.Vector3(-0.9, 1.4, -1.2));
 let frameCount = 0;
 let elapsed = 0;
 let debugVisible = true;
+const loadWithStatus = async (id: string, message: string) => {
+  const start = performance.now();
+  menu.setStatus(message);
+  await engine.modules.load(id);
+  const elapsedMs = performance.now() - start;
+  const minDurationMs = 400;
+  if (elapsedMs < minDurationMs) {
+    await new Promise((resolve) => setTimeout(resolve, minDurationMs - elapsedMs));
+  }
+  menu.setStatus('');
+};
+engine.modules.load('stub');
 const setDebugVisible = (visible: boolean) => {
   const display = visible ? 'block' : 'none';
   fps.style.display = display;
@@ -63,15 +87,15 @@ const setDebugVisible = (visible: boolean) => {
 
 window.addEventListener('keydown', (event) => {
   if (event.key === '1') {
-    engine.modules.load('stub');
+    loadWithStatus('stub', 'Loading Stub...');
   } else if (event.key === '2') {
-    engine.modules.load('beacon');
+    loadWithStatus('beacon', 'Loading Beacon...');
   } else if (event.key === '3') {
-    engine.modules.load('mnemosyne');
+    loadWithStatus('mnemosyne', 'Loading Mnemosyne...');
   } else if (event.key === '4') {
-    engine.modules.load('themis');
+    loadWithStatus('themis', 'Loading Themis...');
   } else if (event.key === '5') {
-    engine.modules.load('tecton');
+    loadWithStatus('tecton', 'Loading Tecton...');
   } else if (event.key.toLowerCase() === 'h') {
     const isHidden = hint.style.display === 'none';
     hint.style.display = isHidden ? 'block' : 'none';

@@ -25,6 +25,10 @@ export class ModuleMenu {
   private buttons: ButtonEntry[] = [];
   private panel?: THREE.Mesh<THREE.PlaneGeometry, THREE.MeshStandardMaterial>;
   private panelMaterial?: THREE.MeshStandardMaterial;
+  private statusLabel?: LabelEntry;
+  private spinner?: THREE.Mesh<THREE.TorusGeometry, THREE.MeshStandardMaterial>;
+  private spinnerMaterial?: THREE.MeshStandardMaterial;
+  private loading = false;
 
   constructor(
     private scene: THREE.Scene,
@@ -47,6 +51,9 @@ export class ModuleMenu {
 
   update(): void {
     this.group.lookAt(this.camera.position);
+    if (this.loading && this.spinner) {
+      this.spinner.rotation.z -= 0.08;
+    }
   }
 
   dispose(): void {
@@ -66,8 +73,43 @@ export class ModuleMenu {
     this.panel?.removeFromParent();
     this.panel = undefined;
     this.panelMaterial = undefined;
+    this.statusLabel?.material.dispose();
+    this.statusLabel?.texture.dispose();
+    this.statusLabel?.sprite.removeFromParent();
+    this.statusLabel = undefined;
+    this.spinnerMaterial?.dispose();
+    this.spinner?.geometry.dispose();
+    this.spinner?.removeFromParent();
+    this.spinner = undefined;
+    this.spinnerMaterial = undefined;
 
     this.group.removeFromParent();
+  }
+
+  setStatus(message: string): void {
+    if (!this.statusLabel) {
+      return;
+    }
+    if (!message) {
+      this.statusLabel.sprite.visible = false;
+      this.loading = false;
+      if (this.spinner) {
+        this.spinner.visible = false;
+      }
+      return;
+    }
+    const replacement = this.createLabelSprite(message, '#f8fafc');
+    replacement.sprite.position.copy(this.statusLabel.sprite.position);
+    this.group.add(replacement.sprite);
+    this.statusLabel.material.dispose();
+    this.statusLabel.texture.dispose();
+    this.statusLabel.sprite.removeFromParent();
+    this.statusLabel = replacement;
+    this.statusLabel.sprite.visible = true;
+    this.loading = true;
+    if (this.spinner) {
+      this.spinner.visible = true;
+    }
   }
 
   private build(items: MenuItem[]): void {
@@ -120,6 +162,21 @@ export class ModuleMenu {
 
       this.buttons.push({ mesh, material, label, unsubscribe });
     });
+
+    this.statusLabel = this.createLabelSprite('', '#f8fafc');
+    this.statusLabel.sprite.position.set(0, -height / 2 + padding / 2, 0.02);
+    this.statusLabel.sprite.visible = false;
+    this.group.add(this.statusLabel.sprite);
+
+    this.spinnerMaterial = new THREE.MeshStandardMaterial({
+      color: 0x93c5fd,
+      emissive: 0x1d4ed8
+    });
+    this.spinner = new THREE.Mesh(new THREE.TorusGeometry(0.03, 0.006, 12, 32), this.spinnerMaterial);
+    this.spinner.position.set(-width / 2 + 0.08, -height / 2 + padding / 2, 0.03);
+    this.spinner.rotation.x = Math.PI / 2;
+    this.spinner.visible = false;
+    this.group.add(this.spinner);
   }
 
   private createLabelSprite(text: string, color: string): LabelEntry {

@@ -107,3 +107,75 @@ Exit criteria:
 Deliverables:
 - QA notes and fixes.
 - Final demo checklist.
+
+## WP-09: Performance and Bundle Split
+Goal: Reduce startup cost and improve frame stability on Quest.
+Entry: WP-08 complete.
+Status: Complete.
+Exit criteria:
+- Modules are dynamically imported (Mnemosyne/Themis/Tecton).
+- Bundle warning addressed or documented with rationale.
+- FPS stable for all demos on Quest (spot-check).
+Deliverables:
+- Lazy loading for modules.
+- Performance notes and measurements.
+
+## WP-10: Mnemosyne Scale + Visual Upgrade
+Goal: Move from placeholder graph to demo-scale knowledge space.
+Entry: WP-09 complete.
+Status: Pending.
+Exit criteria:
+- 150+ nodes render with readable labels in VR.
+- Explicit vs AI edges are visually distinct and legible.
+- Cluster expansion or emphasis interaction implemented.
+Deliverables:
+- Force-graph integration or improved layout system.
+- Mnemosyne data expanded to demo scale.
+
+## WP-11: Themis Narrative Upgrade
+Goal: Match the Agent Council narrative beats.
+Entry: WP-10 complete.
+Status: Pending.
+Exit criteria:
+- Chaos vs. CPN contrast visualization implemented.
+- Checkpoint panel shows richer source list content.
+- Token animation uses easing and clear pause/resume cues.
+Deliverables:
+- Themis chaos view and split-screen/contrast mode.
+- Updated checkpoint UI content.
+
+## WP-12: Tecton GLTF Upgrade
+Goal: Replace primitives with real or placeholder GLTF variants.
+Entry: WP-11 complete.
+Status: Pending.
+Exit criteria:
+- GLTF variants load and swap from manifest.
+- Side-by-side comparison works with real geometry.
+- Exploded view or layered separation implemented (basic).
+Deliverables:
+- GLTF loader and variant switcher.
+- Exploded view animation.
+
+## WP-13: Scenario Runner + Narration
+Goal: Scripted sequence support across demos.
+Entry: WP-12 complete.
+Status: Pending.
+Exit criteria:
+- Scenario runner can trigger tooltips, highlights, and waits.
+- At least one scripted sequence per demo.
+- Narration text hooks integrated (audio optional).
+Deliverables:
+- Scenario runner module.
+- Tooltip and narration system.
+
+## WP-14: Hosting + Recording
+Goal: Ready-to-share demo package.
+Entry: WP-13 complete.
+Status: Pending.
+Exit criteria:
+- Hosted build available via URL.
+- Backup screen recordings captured.
+- Demo runbook updated.
+Deliverables:
+- Deployment instructions.
+- Recorded demo assets.
