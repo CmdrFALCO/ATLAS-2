@@ -2,10 +2,13 @@ import * as THREE from 'three';
 import type { AtlasModule, ModuleContext } from './AtlasModule';
 import { loadThemisData } from '../data';
 import { TextSprite } from '../ui/TextSprite';
+import type { ScenarioAnchor, ScenarioEvent } from '../scenario/types';
 
 interface ThemisNode {
   id: string;
   position: THREE.Vector3;
+  mesh: THREE.Mesh;
+  baseScale: THREE.Vector3;
 }
 
 interface ThemisEvent {
@@ -55,6 +58,9 @@ export class ThemisModule implements AtlasModule {
   private moveTime = 0;
   private paused = false;
   private resumeTargetId?: string;
+  private scenarioTime = 0;
+  private highlightNodeId?: string;
+  private highlightNodeUntil = 0;
 
   private panelGroup?: THREE.Group;
   private panelLabel?: TextSprite;
@@ -88,7 +94,9 @@ export class ThemisModule implements AtlasModule {
     if (!this.active) {
       return;
     }
+    this.scenarioTime += dt;
     this.updateChaos(dt);
+    this.applyHighlight();
     if (this.panelGroup && this.camera) {
       this.panelGroup.lookAt(this.camera.position);
     }
@@ -134,6 +142,8 @@ export class ThemisModule implements AtlasModule {
     this.group?.clear();
     this.group?.removeFromParent();
     this.group = undefined;
+    this.highlightNodeId = undefined;
+    this.highlightNodeUntil = 0;
 
     for (const label of this.labels) {
       label.dispose();
@@ -171,7 +181,12 @@ export class ThemisModule implements AtlasModule {
       mesh.position.set(place.position.x, place.position.y, place.position.z);
       mesh.name = place.label;
       this.group.add(mesh);
-      this.nodes.set(place.id, { id: place.id, position: mesh.position.clone() });
+      this.nodes.set(place.id, {
+        id: place.id,
+        position: mesh.position.clone(),
+        mesh,
+        baseScale: mesh.scale.clone()
+      });
     }
 
     for (const transition of data.transitions) {
@@ -179,7 +194,12 @@ export class ThemisModule implements AtlasModule {
       mesh.position.set(transition.position.x, transition.position.y, transition.position.z);
       mesh.name = transition.label;
       this.group.add(mesh);
-      this.nodes.set(transition.id, { id: transition.id, position: mesh.position.clone() });
+      this.nodes.set(transition.id, {
+        id: transition.id,
+        position: mesh.position.clone(),
+        mesh,
+        baseScale: mesh.scale.clone()
+      });
     }
 
     this.arcMaterial = new THREE.LineBasicMaterial({
@@ -545,5 +565,41 @@ export class ThemisModule implements AtlasModule {
       this.chaosPositions.setXYZ(i * 2 + 1, b.position.x, b.position.y, b.position.z);
     }
     this.chaosPositions.needsUpdate = true;
+  }
+
+  private applyHighlight(): void {
+    const highlightActive =
+      this.highlightNodeId && this.scenarioTime < this.highlightNodeUntil;
+    for (const node of this.nodes.values()) {
+      node.mesh.scale.copy(node.baseScale);
+    }
+    if (!highlightActive || !this.highlightNodeId) {
+      if (this.highlightNodeId && this.scenarioTime >= this.highlightNodeUntil) {
+        this.highlightNodeId = undefined;
+      }
+      return;
+    }
+    const target = this.nodes.get(this.highlightNodeId);
+    if (!target) {
+      return;
+    }
+    const pulse = 1 + Math.sin(this.scenarioTime * 4) * 0.2;
+    target.mesh.scale.copy(target.baseScale).multiplyScalar(pulse);
+  }
+
+  onScenarioEvent(event: ScenarioEvent): void {
+    if (event.type === 'HIGHLIGHT_NODE') {
+      const duration = event.seconds ?? 2.5;
+      this.highlightNodeId = event.nodeId;
+      this.highlightNodeUntil = this.scenarioTime + duration;
+    }
+  }
+
+  getScenarioAnchor(anchor: ScenarioAnchor): THREE.Vector3 | undefined {
+    if (anchor.type === 'node') {
+      const node = this.nodes.get(anchor.id);
+      return node?.mesh.position.clone();
+    }
+    return undefined;
   }
 }

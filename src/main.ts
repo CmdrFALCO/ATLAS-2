@@ -3,6 +3,7 @@ import './style.css';
 import { AtlasEngine } from './core';
 import { BeaconModule, StubModule } from './modules';
 import { ModuleMenu } from './ui/ModuleMenu';
+import { ScenarioRunner } from './scenario';
 
 const app = document.querySelector<HTMLDivElement>('#app');
 if (!app) {
@@ -28,7 +29,7 @@ const createOverlay = (text: string, top: number, fontSize: number) => {
 };
 
 const hint = createOverlay(
-  'Modules: [1] Stub Cube  [2] Beacon  [3] Mnemosyne  [4] Themis  [5] Tecton  (H: hint, D: debug)',
+  'Modules: [1] Stub Cube  [2] Beacon  [3] Mnemosyne  [4] Themis  [5] Tecton  [R] Run Scenario  (H: hint, D: debug)',
   16,
   14
 );
@@ -38,6 +39,7 @@ const fps = createOverlay('FPS: --', 56, 12);
 const interactionDebug = createOverlay('Hover: none', 96, 12);
 
 const engine = new AtlasEngine(app, { enableXR: true });
+const scenarioRunner = new ScenarioRunner(engine.scene, engine.camera, engine.modules);
 engine.modules.register(new StubModule());
 engine.modules.register(new BeaconModule());
 engine.modules.registerLoader('mnemosyne', async () => {
@@ -52,6 +54,13 @@ engine.modules.registerLoader('tecton', async () => {
   const { TectonModule } = await import('./modules/TectonModule');
   return new TectonModule();
 });
+const runScenario = () => {
+  if (scenarioRunner.isRunning()) {
+    scenarioRunner.stop();
+    return;
+  }
+  void scenarioRunner.runActive();
+};
 const menu = new ModuleMenu(engine.scene, engine.camera, engine.interaction, [
   { id: 'stub', label: 'Stub Cube', onSelect: () => loadWithStatus('stub', 'Loading Stub...') },
   { id: 'beacon', label: 'Beacon', onSelect: () => loadWithStatus('beacon', 'Loading Beacon...') },
@@ -61,13 +70,15 @@ const menu = new ModuleMenu(engine.scene, engine.camera, engine.interaction, [
     onSelect: () => loadWithStatus('mnemosyne', 'Loading Mnemosyne...')
   },
   { id: 'themis', label: 'Themis', onSelect: () => loadWithStatus('themis', 'Loading Themis...') },
-  { id: 'tecton', label: 'Tecton', onSelect: () => loadWithStatus('tecton', 'Loading Tecton...') }
+  { id: 'tecton', label: 'Tecton', onSelect: () => loadWithStatus('tecton', 'Loading Tecton...') },
+  { id: 'scenario', label: 'Run Scenario', onSelect: () => runScenario() }
 ]);
 menu.setPosition(new THREE.Vector3(-0.9, 1.4, -1.2));
 let frameCount = 0;
 let elapsed = 0;
 let debugVisible = true;
 const loadWithStatus = async (id: string, message: string) => {
+  scenarioRunner.stop();
   const start = performance.now();
   menu.setStatus(message);
   await engine.modules.load(id);
@@ -102,6 +113,8 @@ window.addEventListener('keydown', (event) => {
   } else if (event.key.toLowerCase() === 'd') {
     debugVisible = !debugVisible;
     setDebugVisible(debugVisible);
+  } else if (event.key.toLowerCase() === 'r') {
+    runScenario();
   }
 });
 
@@ -117,6 +130,7 @@ engine.addFrameListener((dt) => {
     elapsed = 0;
   }
   menu.update();
+  scenarioRunner.update(dt);
   const hover = engine.interaction.getHoverHit();
   if (hover) {
     const name = hover.object.name || hover.object.type;

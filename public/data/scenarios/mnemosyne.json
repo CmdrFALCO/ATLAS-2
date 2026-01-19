@@ -1,0 +1,36 @@
+{
+  "id": "mnemosyne",
+  "events": [
+    {
+      "type": "TOOLTIP",
+      "text": "Mnemosyne: AI-suggested links are green.",
+      "position": "center",
+      "seconds": 3
+    },
+    {
+      "type": "HIGHLIGHT_CLUSTER",
+      "clusterId": "thermal",
+      "seconds": 3
+    },
+    {
+      "type": "TOOLTIP",
+      "text": "Thermal cluster highlighted.",
+      "seconds": 2.5
+    },
+    {
+      "type": "HIGHLIGHT_NODE",
+      "nodeId": "thermal-1",
+      "seconds": 3
+    },
+    {
+      "type": "HIGHLIGHT_EDGE",
+      "edgeId": "e1",
+      "seconds": 3
+    },
+    {
+      "type": "NARRATION",
+      "text": "Select an AI edge to review the reasoning.",
+      "seconds": 3.5
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import type { AtlasModule, ModuleContext } from './AtlasModule';
 import { loadMnemosyneData } from '../data';
 import { TextSprite } from '../ui/TextSprite';
+import type { ScenarioAnchor, ScenarioEvent } from '../scenario/types';
 
 const EXPLICIT_COLOR = 0x3b82f6;
 const AI_COLOR = 0x22c55e;
@@ -28,6 +29,8 @@ interface EdgeEntry {
   type: 'explicit' | 'ai_suggested' | 'cluster';
   line: THREE.Line<THREE.BufferGeometry, THREE.LineBasicMaterial>;
   material: THREE.LineBasicMaterial;
+  baseColor: number;
+  baseOpacity: number;
   handle?: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
   handleMaterial?: THREE.MeshStandardMaterial;
   handleUnsubscribe?: () => void;
@@ -84,6 +87,13 @@ export class MnemosyneModule implements AtlasModule {
   private active = false;
   private pulseTime = 0;
   private activeEdge?: EdgeEntry;
+  private scenarioTime = 0;
+  private highlightClusterId?: string;
+  private highlightNodeId?: string;
+  private highlightEdgeId?: string;
+  private highlightClusterUntil = 0;
+  private highlightNodeUntil = 0;
+  private highlightEdgeUntil = 0;
 
   onLoad(context: ModuleContext): void {
     this.active = true;
@@ -105,6 +115,7 @@ export class MnemosyneModule implements AtlasModule {
 
   onUpdate(dt: number): void {
     this.pulseTime += dt;
+    this.scenarioTime += dt;
     const pulse = 1 + Math.sin(this.pulseTime * 2) * 0.15;
     for (const edge of this.edges) {
       if (edge.type === 'ai_suggested' && edge.handle) {
@@ -119,8 +130,10 @@ export class MnemosyneModule implements AtlasModule {
       const target = cluster.expanded ? node.expandedPosition : node.basePosition;
       node.mesh.position.lerp(target, 0.1);
       node.label.sprite.position.copy(node.mesh.position).add(new THREE.Vector3(0, 0.18, 0));
+      this.applyNodeHighlight(node);
     }
     this.updateEdges();
+    this.applyEdgeHighlight();
     if (this.panelGroup && this.camera) {
       this.panelGroup.lookAt(this.camera.position);
     }
@@ -173,6 +186,9 @@ export class MnemosyneModule implements AtlasModule {
 
     this.group?.removeFromParent();
     this.group = undefined;
+    this.highlightClusterId = undefined;
+    this.highlightNodeId = undefined;
+    this.highlightEdgeId = undefined;
   }
 
   private buildScene(
@@ -329,6 +345,8 @@ export class MnemosyneModule implements AtlasModule {
         type: edge.type,
         line,
         material,
+        baseColor: material.color.getHex(),
+        baseOpacity: material.opacity,
         reasons: edge.reasons,
         confidence: edge.confidence,
         visible: true,
@@ -381,6 +399,83 @@ export class MnemosyneModule implements AtlasModule {
         edge.handle.position.copy(source).add(target).multiplyScalar(0.5);
       }
     }
+  }
+
+  private applyNodeHighlight(node: NodeEntry): void {
+    const highlightClusterActive =
+      this.highlightClusterId && this.scenarioTime < this.highlightClusterUntil;
+    const highlightNodeActive =
+      this.highlightNodeId && this.scenarioTime < this.highlightNodeUntil;
+    const highlight =
+      (highlightClusterActive && node.clusterId === this.highlightClusterId) ||
+      (highlightNodeActive && node.id === this.highlightNodeId);
+
+    if (highlight) {
+      const pulse = 1 + Math.sin(this.scenarioTime * 4) * 0.2;
+      node.mesh.scale.setScalar(pulse);
+      node.label.sprite.visible = true;
+    } else {
+      node.mesh.scale.setScalar(1);
+      node.label.sprite.visible = node.selected || node.hovered;
+    }
+
+    if (this.highlightClusterId && this.scenarioTime >= this.highlightClusterUntil) {
+      this.highlightClusterId = undefined;
+    }
+    if (this.highlightNodeId && this.scenarioTime >= this.highlightNodeUntil) {
+      this.highlightNodeId = undefined;
+    }
+  }
+
+  private applyEdgeHighlight(): void {
+    const highlightEdgeActive =
+      this.highlightEdgeId && this.scenarioTime < this.highlightEdgeUntil;
+    for (const edge of this.edges) {
+      if (!highlightEdgeActive || edge.id !== this.highlightEdgeId) {
+        edge.material.color.setHex(edge.baseColor);
+        edge.material.opacity = edge.baseOpacity;
+        continue;
+      }
+      edge.material.color.setHex(0xfacc15);
+      edge.material.opacity = 1;
+    }
+    if (this.highlightEdgeId && this.scenarioTime >= this.highlightEdgeUntil) {
+      this.highlightEdgeId = undefined;
+    }
+  }
+
+  onScenarioEvent(event: ScenarioEvent): void {
+    const duration = event.seconds ?? 2.5;
+    if (event.type === 'HIGHLIGHT_CLUSTER') {
+      this.highlightClusterId = event.clusterId;
+      this.highlightClusterUntil = this.scenarioTime + duration;
+    }
+    if (event.type === 'HIGHLIGHT_NODE') {
+      this.highlightNodeId = event.nodeId;
+      this.highlightNodeUntil = this.scenarioTime + duration;
+    }
+    if (event.type === 'HIGHLIGHT_EDGE') {
+      this.highlightEdgeId = event.edgeId;
+      this.highlightEdgeUntil = this.scenarioTime + duration;
+    }
+  }
+
+  getScenarioAnchor(anchor: ScenarioAnchor): THREE.Vector3 | undefined {
+    if (anchor.type === 'node') {
+      const node = this.nodes.find((entry) => entry.id === anchor.id);
+      return node?.mesh.position.clone();
+    }
+    if (anchor.type === 'cluster') {
+      const cluster = this.clusters.get(anchor.id);
+      return cluster?.center.clone();
+    }
+    if (anchor.type === 'edge') {
+      const edge = this.edges.find((entry) => entry.id === anchor.id);
+      if (edge?.source && edge?.target) {
+        return edge.source.mesh.position.clone().add(edge.target.mesh.position).multiplyScalar(0.5);
+      }
+    }
+    return undefined;
   }
 
   private createLabelSprite(text: string, color: string): LabelEntry {
@@ -633,6 +728,8 @@ export class MnemosyneModule implements AtlasModule {
     edge.type = 'explicit';
     edge.material.color.setHex(EXPLICIT_COLOR);
     edge.material.opacity = 0.7;
+    edge.baseColor = edge.material.color.getHex();
+    edge.baseOpacity = edge.material.opacity;
     if (edge.handle) {
       edge.handleUnsubscribe?.();
       edge.handleMaterial?.dispose();

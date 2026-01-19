@@ -66,4 +66,8 @@ export class ModuleLoader {
   getActiveId(): string | undefined {
     return this.active?.id;
   }
+
+  getActiveModule(): AtlasModule | undefined {
+    return this.active;
+  }
 }

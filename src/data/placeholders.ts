@@ -48,7 +48,7 @@ export const createTectonPlaceholder = (): TectonData => ({
   variants: [
     {
       id: 'variant-base',
-      file: 'placeholder.gltf',
+      file: 'models/tecton-placeholder.gltf',
       params: {
         cellCount: 48,
         cooling: 'air',
@@ -61,7 +61,7 @@ export const createTectonPlaceholder = (): TectonData => ({
   ],
   aiSuggestion: {
     id: 'variant-ai',
-    file: 'placeholder-ai.gltf',
+    file: 'models/tecton-placeholder.gltf',
     params: {
       cellCount: 52,
       cooling: 'air',

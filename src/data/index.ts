@@ -1,5 +1,6 @@
 export type { LoadResult, LoadSource } from './loader';
 export { loadMnemosyneData, loadThemisData, loadTectonData } from './loader';
+export { loadScenarioScript } from './scenarios';
 export {
   createMnemosynePlaceholder,
   createThemisPlaceholder,

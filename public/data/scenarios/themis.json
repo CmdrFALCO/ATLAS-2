@@ -1,0 +1,20 @@
+{
+  "id": "themis",
+  "events": [
+    {
+      "type": "NARRATION",
+      "text": "Themis coordinates agent decisions through the workflow.",
+      "seconds": 3.5
+    },
+    {
+      "type": "HIGHLIGHT_NODE",
+      "nodeId": "t_checkpoint",
+      "seconds": 3
+    },
+    {
+      "type": "TOOLTIP",
+      "text": "Checkpoint requires human approval.",
+      "seconds": 3
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "id": "tecton",
+  "events": [
+    {
+      "type": "TOOLTIP",
+      "text": "Tecton compares parametric battery variants.",
+      "seconds": 3
+    },
+    {
+      "type": "NARRATION",
+      "text": "Toggle AI to overlay the suggested configuration.",
+      "seconds": 3.5
+    },
+    {
+      "type": "TOOLTIP",
+      "text": "Use Explode to inspect the layout.",
+      "seconds": 3
+    }
+  ]
+}

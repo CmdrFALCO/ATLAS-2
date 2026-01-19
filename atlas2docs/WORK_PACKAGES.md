@@ -159,7 +159,7 @@ Deliverables:
 ## WP-13: Scenario Runner + Narration
 Goal: Scripted sequence support across demos.
 Entry: WP-12 complete.
-Status: Pending.
+Status: Complete.
 Exit criteria:
 - Scenario runner can trigger tooltips, highlights, and waits.
 - At least one scripted sequence per demo.

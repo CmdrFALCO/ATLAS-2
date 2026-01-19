@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import type { AtlasModule, ModuleContext } from './AtlasModule';
 import { loadTectonData } from '../data';
 import { TextSprite } from '../ui/TextSprite';
@@ -26,19 +27,27 @@ interface PanelButton {
   unsubscribe: () => void;
 }
 
+interface ModelInstance {
+  file: string;
+  container: THREE.Group;
+  content: THREE.Group;
+  meshes: THREE.Mesh[];
+  basePositions: THREE.Vector3[];
+  explodeDirections: THREE.Vector3[];
+}
+
+const EXPLODE_DISTANCE = 0.12;
+
 export class TectonModule implements AtlasModule {
   id = 'tecton';
   private group?: THREE.Group;
   private camera?: THREE.Camera;
-  private baseMesh?: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
-  private aiMesh?: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
-  private baseMaterial?: THREE.MeshStandardMaterial;
-  private aiMaterial?: THREE.MeshStandardMaterial;
   private activeVariant?: Variant;
   private aiVariant?: Variant;
   private variants: Variant[] = [];
   private variantIndex = 0;
   private showAi = false;
+  private explode = false;
   private active = false;
 
   private panelGroup?: THREE.Group;
@@ -47,6 +56,17 @@ export class TectonModule implements AtlasModule {
   private baseLines: TextSprite[] = [];
   private aiLines: TextSprite[] = [];
   private buttons: PanelButton[] = [];
+
+  private loader = new GLTFLoader();
+  private modelCache = new Map<string, Promise<THREE.Group>>();
+  private baseModel?: ModelInstance;
+  private aiModel?: ModelInstance;
+  private baseFallback?: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
+  private aiFallback?: THREE.Mesh<THREE.BoxGeometry, THREE.MeshStandardMaterial>;
+  private baseFallbackMaterial?: THREE.MeshStandardMaterial;
+  private aiFallbackMaterial?: THREE.MeshStandardMaterial;
+  private baseRequestId = 0;
+  private aiRequestId = 0;
 
   onLoad(context: ModuleContext): void {
     this.active = true;
@@ -78,23 +98,20 @@ export class TectonModule implements AtlasModule {
     this.active = false;
     this.disposePanel();
 
-    this.baseMesh?.geometry.dispose();
-    this.baseMaterial?.dispose();
-    this.baseMesh?.removeFromParent();
-    this.baseMesh = undefined;
-    this.baseMaterial = undefined;
+    this.disposeModel(this.baseModel);
+    this.baseModel = undefined;
+    this.disposeModel(this.aiModel);
+    this.aiModel = undefined;
 
-    this.aiMesh?.geometry.dispose();
-    this.aiMaterial?.dispose();
-    this.aiMesh?.removeFromParent();
-    this.aiMesh = undefined;
-    this.aiMaterial = undefined;
+    this.disposeFallback('base');
+    this.disposeFallback('ai');
 
     this.group?.removeFromParent();
     this.group = undefined;
     this.variants = [];
     this.activeVariant = undefined;
     this.aiVariant = undefined;
+    this.modelCache.clear();
   }
 
   private initializeVariants(): void {
@@ -103,76 +120,130 @@ export class TectonModule implements AtlasModule {
     }
     this.variantIndex = 0;
     this.activeVariant = this.variants[0];
-    this.updateBaseMesh();
-    this.updateAiMesh();
+    void this.updateBaseModel();
+    void this.updateAiModel();
     this.updatePanel();
     this.updateLayout();
   }
 
-  private updateBaseMesh(): void {
-    if (!this.group || !this.activeVariant) {
+  private async updateBaseModel(): Promise<void> {
+    if (!this.group || !this.activeVariant || !this.active) {
       return;
     }
-    const size = this.getSize(this.activeVariant.params);
-    const color = this.getThermalColor(this.activeVariant.params.thermal_headroom);
+    const variant = this.activeVariant;
+    const size = this.getSize(variant.params);
+    const color = this.getThermalColor(variant.params.thermal_headroom);
 
-    if (!this.baseMaterial) {
-      this.baseMaterial = new THREE.MeshStandardMaterial({ color });
-    } else {
-      this.baseMaterial.color.set(color);
+    if (this.baseModel && this.baseModel.file === variant.file) {
+      this.tintModel(this.baseModel, color, 1);
+      this.fitModelToSize(this.baseModel, size);
+      this.updateExplode();
+      this.updateLayout();
+      return;
     }
 
-    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
-    if (this.baseMesh) {
-      this.baseMesh.geometry.dispose();
-      this.baseMesh.geometry = geometry;
-    } else {
-      this.baseMesh = new THREE.Mesh(geometry, this.baseMaterial);
-      this.baseMesh.name = 'Tecton Base';
-      this.baseMesh.position.set(0, 1.2, -0.6);
-      this.group.add(this.baseMesh);
+    const requestId = ++this.baseRequestId;
+    let source: THREE.Group;
+    try {
+      source = await this.loadModel(variant.file);
+    } catch (error) {
+      console.warn('[tecton] Failed to load base model', error);
+      this.ensureFallbackMesh('base', size, color, 1);
+      this.updateLayout();
+      return;
     }
+
+    if (!this.group || !this.activeVariant || this.activeVariant.id !== variant.id) {
+      return;
+    }
+    if (requestId !== this.baseRequestId) {
+      return;
+    }
+
+    this.disposeModel(this.baseModel);
+    this.baseModel = undefined;
+    this.disposeFallback('base');
+
+    const instance = this.createModelInstance(source, variant.file);
+    this.tintModel(instance, color, 1);
+    this.fitModelToSize(instance, size);
+    this.updateExplode(instance);
+    this.group.add(instance.container);
+    this.baseModel = instance;
+
+    this.updateLayout();
   }
 
-  private updateAiMesh(): void {
-    if (!this.group || !this.aiVariant) {
+  private async updateAiModel(): Promise<void> {
+    if (!this.group || !this.aiVariant || !this.active) {
       return;
     }
-    const size = this.getSize(this.aiVariant.params);
-    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+    const variant = this.aiVariant;
+    const size = this.getSize(variant.params);
 
-    if (!this.aiMaterial) {
-      this.aiMaterial = new THREE.MeshStandardMaterial({
-        color: 0x22c55e,
-        transparent: true,
-        opacity: 0.5
-      });
+    if (this.aiModel && this.aiModel.file === variant.file) {
+      this.tintModel(this.aiModel, 0x22c55e, 0.55);
+      this.fitModelToSize(this.aiModel, size);
+      this.updateExplode();
+      this.updateLayout();
+      return;
     }
 
-    if (this.aiMesh) {
-      this.aiMesh.geometry.dispose();
-      this.aiMesh.geometry = geometry;
-    } else {
-      this.aiMesh = new THREE.Mesh(geometry, this.aiMaterial);
-      this.aiMesh.name = 'AI Suggestion';
-      this.group.add(this.aiMesh);
+    const requestId = ++this.aiRequestId;
+    let source: THREE.Group;
+    try {
+      source = await this.loadModel(variant.file);
+    } catch (error) {
+      console.warn('[tecton] Failed to load AI model', error);
+      this.ensureFallbackMesh('ai', size, 0x22c55e, 0.5);
+      this.updateLayout();
+      return;
     }
 
-    this.aiMesh.visible = this.showAi;
+    if (!this.group || !this.aiVariant || this.aiVariant.id !== variant.id) {
+      return;
+    }
+    if (requestId !== this.aiRequestId) {
+      return;
+    }
+
+    this.disposeModel(this.aiModel);
+    this.aiModel = undefined;
+    this.disposeFallback('ai');
+
+    const instance = this.createModelInstance(source, variant.file);
+    this.tintModel(instance, 0x22c55e, 0.55);
+    this.fitModelToSize(instance, size);
+    this.updateExplode(instance);
+    instance.container.visible = this.showAi;
+    this.group.add(instance.container);
+    this.aiModel = instance;
+
+    this.updateLayout();
   }
 
   private updateLayout(): void {
-    if (!this.baseMesh) {
-      return;
+    const basePosition = new THREE.Vector3(0, 1.2, -0.6);
+    const aiPosition = new THREE.Vector3(0.5, 1.2, -0.6);
+
+    if (this.showAi) {
+      basePosition.set(-0.5, 1.2, -0.6);
     }
-    if (this.showAi && this.aiMesh) {
-      this.baseMesh.position.set(-0.5, 1.2, -0.6);
-      this.aiMesh.position.set(0.5, 1.2, -0.6);
-    } else {
-      this.baseMesh.position.set(0, 1.2, -0.6);
-      if (this.aiMesh) {
-        this.aiMesh.position.set(0.5, 1.2, -0.6);
-      }
+
+    if (this.baseModel) {
+      this.baseModel.container.position.copy(basePosition);
+    }
+    if (this.baseFallback) {
+      this.baseFallback.position.copy(basePosition);
+    }
+
+    if (this.aiModel) {
+      this.aiModel.container.position.copy(aiPosition);
+      this.aiModel.container.visible = this.showAi;
+    }
+    if (this.aiFallback) {
+      this.aiFallback.position.copy(aiPosition);
+      this.aiFallback.visible = this.showAi;
     }
   }
 
@@ -253,13 +324,20 @@ export class TectonModule implements AtlasModule {
     const toggleButton = this.createPanelButton(
       context,
       'Toggle AI',
-      new THREE.Vector3(0, -0.61, 0.02),
+      new THREE.Vector3(-0.12, -0.61, 0.02),
       0x16a34a,
       () => this.toggleAi()
     );
+    const explodeButton = this.createPanelButton(
+      context,
+      'Explode',
+      new THREE.Vector3(0.12, -0.61, 0.02),
+      0x0ea5e9,
+      () => this.toggleExplode()
+    );
 
-    this.buttons.push(prevButton, nextButton, toggleButton);
-    panelGroup.add(prevButton.group, nextButton.group, toggleButton.group);
+    this.buttons.push(prevButton, nextButton, toggleButton, explodeButton);
+    panelGroup.add(prevButton.group, nextButton.group, toggleButton.group, explodeButton.group);
   }
 
   private createPanelButton(
@@ -348,16 +426,49 @@ export class TectonModule implements AtlasModule {
     }
     this.variantIndex = (this.variantIndex + direction + this.variants.length) % this.variants.length;
     this.activeVariant = this.variants[this.variantIndex];
-    this.updateBaseMesh();
+    void this.updateBaseModel();
     this.updatePanel();
     this.updateLayout();
   }
 
   private toggleAi(): void {
     this.showAi = !this.showAi;
-    this.updateAiMesh();
+    if (this.showAi && !this.aiModel) {
+      void this.updateAiModel();
+    }
     this.updateLayout();
     this.updatePanel();
+    this.updateExplode();
+  }
+
+  private toggleExplode(): void {
+    this.explode = !this.explode;
+    this.updateExplode();
+  }
+
+  private updateExplode(instance?: ModelInstance): void {
+    if (instance) {
+      this.applyExplode(instance);
+      return;
+    }
+    if (this.baseModel) {
+      this.applyExplode(this.baseModel);
+    }
+    if (this.aiModel) {
+      this.applyExplode(this.aiModel);
+    }
+  }
+
+  private applyExplode(instance: ModelInstance): void {
+    const distance = this.explode ? EXPLODE_DISTANCE : 0;
+    instance.meshes.forEach((mesh, index) => {
+      const base = instance.basePositions[index];
+      const direction = instance.explodeDirections[index];
+      mesh.position.copy(base);
+      if (distance > 0) {
+        mesh.position.addScaledVector(direction, distance);
+      }
+    });
   }
 
   private disposePanel(): void {
@@ -390,6 +501,199 @@ export class TectonModule implements AtlasModule {
 
     this.panelGroup?.removeFromParent();
     this.panelGroup = undefined;
+  }
+
+  private resolveModelPath(file: string): string {
+    if (file.startsWith('http') || file.startsWith('data:')) {
+      return file;
+    }
+    if (file.startsWith('/')) {
+      return file;
+    }
+    return `/${file}`;
+  }
+
+  private loadModel(file: string): Promise<THREE.Group> {
+    const resolved = this.resolveModelPath(file);
+    const cached = this.modelCache.get(resolved);
+    if (cached) {
+      return cached;
+    }
+    const promise = new Promise<THREE.Group>((resolve, reject) => {
+      this.loader.load(
+        resolved,
+        (gltf) => resolve(gltf.scene),
+        undefined,
+        (error) => reject(error)
+      );
+    });
+    this.modelCache.set(resolved, promise);
+    return promise;
+  }
+
+  private createModelInstance(source: THREE.Group, file: string): ModelInstance {
+    const content = source.clone(true);
+    const container = new THREE.Group();
+    container.add(content);
+
+    const meshes: THREE.Mesh[] = [];
+    const basePositions: THREE.Vector3[] = [];
+    const explodeDirections: THREE.Vector3[] = [];
+
+    content.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const usesArray = Array.isArray(child.material);
+        const materials = usesArray ? child.material : [child.material];
+        const clonedMaterials = materials.map((material) => material.clone());
+        child.geometry = child.geometry.clone();
+        child.material = usesArray ? clonedMaterials : clonedMaterials[0];
+        meshes.push(child);
+        basePositions.push(child.position.clone());
+      }
+    });
+
+    const center = new THREE.Vector3();
+    if (basePositions.length > 0) {
+      for (const pos of basePositions) {
+        center.add(pos);
+      }
+      center.multiplyScalar(1 / basePositions.length);
+    }
+
+    basePositions.forEach((pos, index) => {
+      const direction = pos.clone().sub(center);
+      if (direction.lengthSq() < 0.0001) {
+        direction.set(index % 2 === 0 ? 1 : -1, 0.4, index % 3 === 0 ? 0.6 : -0.2);
+      }
+      direction.normalize();
+      explodeDirections.push(direction);
+    });
+
+    return { file, container, content, meshes, basePositions, explodeDirections };
+  }
+
+  private tintModel(instance: ModelInstance, color: number, opacity: number): void {
+    for (const mesh of instance.meshes) {
+      const materials = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
+      for (const material of materials) {
+        const mat = material as THREE.MeshStandardMaterial;
+        if ('color' in mat) {
+          mat.color.setHex(color);
+        }
+        if (opacity < 1) {
+          mat.transparent = true;
+          mat.opacity = opacity;
+        } else {
+          mat.opacity = 1;
+          mat.transparent = false;
+        }
+        mat.needsUpdate = true;
+      }
+    }
+  }
+
+  private fitModelToSize(instance: ModelInstance, size: THREE.Vector3): void {
+    const { content } = instance;
+    content.scale.set(1, 1, 1);
+    content.position.set(0, 0, 0);
+    content.updateMatrixWorld(true);
+
+    const bounds = new THREE.Box3().setFromObject(content);
+    const boundsSize = new THREE.Vector3();
+    bounds.getSize(boundsSize);
+
+    const scale = new THREE.Vector3(
+      boundsSize.x ? size.x / boundsSize.x : 1,
+      boundsSize.y ? size.y / boundsSize.y : 1,
+      boundsSize.z ? size.z / boundsSize.z : 1
+    );
+    content.scale.copy(scale);
+    content.updateMatrixWorld(true);
+
+    const centeredBounds = new THREE.Box3().setFromObject(content);
+    const center = centeredBounds.getCenter(new THREE.Vector3());
+    content.position.sub(center);
+  }
+
+  private disposeModel(instance?: ModelInstance): void {
+    if (!instance) {
+      return;
+    }
+    instance.container.removeFromParent();
+    instance.container.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        child.geometry.dispose();
+        const materials = Array.isArray(child.material) ? child.material : [child.material];
+        for (const material of materials) {
+          material.dispose();
+        }
+      }
+    });
+  }
+
+  private ensureFallbackMesh(
+    target: 'base' | 'ai',
+    size: THREE.Vector3,
+    color: number,
+    opacity: number
+  ): void {
+    if (!this.group) {
+      return;
+    }
+    const mesh = target === 'base' ? this.baseFallback : this.aiFallback;
+    let material = target === 'base' ? this.baseFallbackMaterial : this.aiFallbackMaterial;
+
+    if (!material) {
+      material = new THREE.MeshStandardMaterial({
+        color,
+        transparent: opacity < 1,
+        opacity
+      });
+    } else {
+      material.color.setHex(color);
+      material.opacity = opacity;
+      material.transparent = opacity < 1;
+    }
+
+    const geometry = new THREE.BoxGeometry(size.x, size.y, size.z);
+
+    if (mesh) {
+      mesh.geometry.dispose();
+      mesh.geometry = geometry;
+      mesh.material = material;
+    } else {
+      const fallbackMesh = new THREE.Mesh(geometry, material);
+      fallbackMesh.name = target === 'base' ? 'Tecton Base Fallback' : 'AI Suggestion Fallback';
+      this.group.add(fallbackMesh);
+      if (target === 'base') {
+        this.baseFallback = fallbackMesh;
+        this.baseFallbackMaterial = material;
+      } else {
+        this.aiFallback = fallbackMesh;
+        this.aiFallbackMaterial = material;
+      }
+    }
+  }
+
+  private disposeFallback(target: 'base' | 'ai'): void {
+    const mesh = target === 'base' ? this.baseFallback : this.aiFallback;
+    const material = target === 'base' ? this.baseFallbackMaterial : this.aiFallbackMaterial;
+
+    if (mesh) {
+      mesh.geometry.dispose();
+      mesh.removeFromParent();
+    }
+    if (material) {
+      material.dispose();
+    }
+
+    if (target === 'base') {
+      this.baseFallback = undefined;
+      this.baseFallbackMaterial = undefined;
+    } else {
+      this.aiFallback = undefined;
+      this.aiFallbackMaterial = undefined;
+    }
   }
 
   private getThermalColor(headroom: VariantParams['thermal_headroom']): number {

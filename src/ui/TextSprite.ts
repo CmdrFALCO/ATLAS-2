@@ -71,9 +71,14 @@ export class TextSprite {
     } = this.options;
     const context = this.context;
     context.font = `${fontWeight} ${fontSize}px Segoe UI`;
-    const metrics = context.measureText(text);
-    const width = fixedWidth ?? Math.ceil(metrics.width + paddingX * 2);
-    const height = fixedHeight ?? Math.ceil(fontSize + paddingY * 2);
+    const lines = text.split('\n');
+    const lineHeight = Math.ceil(fontSize * 1.25);
+    const maxLineWidth = lines.reduce((max, line) => {
+      const metrics = context.measureText(line);
+      return Math.max(max, metrics.width);
+    }, 0);
+    const width = fixedWidth ?? Math.ceil(maxLineWidth + paddingX * 2);
+    const height = fixedHeight ?? Math.ceil(lineHeight * lines.length + paddingY * 2);
     const resized = width !== this.width || height !== this.height;
     if (resized) {
       this.canvas.width = width;
@@ -99,7 +104,10 @@ export class TextSprite {
     context.fillStyle = color;
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillText(text, width / 2, height / 2 + 1);
+    lines.forEach((line, index) => {
+      const y = paddingY + lineHeight * index + lineHeight / 2;
+      context.fillText(line, width / 2, y + 1);
+    });
 
     if (resized) {
       const oldTexture = this.texture;

@@ -2,7 +2,7 @@
   "variants": [
     {
       "id": "base-48",
-      "file": "module-48.gltf",
+      "file": "models/GearboxAssy/glTF-Binary/GearboxAssy.glb",
       "params": {
         "cellCount": 48,
         "cooling": "liquid",
@@ -14,7 +14,7 @@
     },
     {
       "id": "variant-52",
-      "file": "module-52.gltf",
+      "file": "models/GearboxAssy/glTF-Binary/GearboxAssy.glb",
       "params": {
         "cellCount": 52,
         "cooling": "liquid",
@@ -27,7 +27,7 @@
   ],
   "aiSuggestion": {
     "id": "ai-54-optimized",
-    "file": "module-54.gltf",
+    "file": "models/GearboxAssy/glTF-Binary/GearboxAssy.glb",
     "params": {
       "cellCount": 54,
       "cooling": "liquid",
