@@ -2,7 +2,7 @@
   "variants": [
     {
       "id": "base-48",
-      "file": "models/GearboxAssy/glTF-Binary/GearboxAssy.glb",
+      "file": "models/tecton-placeholder.gltf",
       "params": {
         "cellCount": 48,
         "cooling": "liquid",
@@ -14,7 +14,7 @@
     },
     {
       "id": "variant-52",
-      "file": "models/GearboxAssy/glTF-Binary/GearboxAssy.glb",
+      "file": "models/tecton-placeholder.gltf",
       "params": {
         "cellCount": 52,
         "cooling": "liquid",
@@ -27,7 +27,7 @@
   ],
   "aiSuggestion": {
     "id": "ai-54-optimized",
-    "file": "models/GearboxAssy/glTF-Binary/GearboxAssy.glb",
+    "file": "models/tecton-placeholder.gltf",
     "params": {
       "cellCount": 54,
       "cooling": "liquid",

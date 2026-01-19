@@ -62,8 +62,8 @@ const runScenario = () => {
   void scenarioRunner.runActive();
 };
 const menu = new ModuleMenu(engine.scene, engine.camera, engine.interaction, [
-  { id: 'stub', label: 'Stub Cube', onSelect: () => loadWithStatus('stub', 'Loading Stub...') },
-  { id: 'beacon', label: 'Beacon', onSelect: () => loadWithStatus('beacon', 'Loading Beacon...') },
+  { id: 'stub', label: 'Mercedes 1', onSelect: () => loadWithStatus('stub', 'Loading Stub...') },
+  { id: 'beacon', label: 'Mercedes 2', onSelect: () => loadWithStatus('beacon', 'Loading Beacon...') },
   {
     id: 'mnemosyne',
     label: 'Mnemosyne',

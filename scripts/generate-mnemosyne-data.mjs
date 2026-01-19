@@ -36,7 +36,7 @@ const clusterDefs = [
   {
     id: 'manufacturing',
     label: 'Manufacturing',
-    color: '#22c55e',
+    color: '#06b6d4',
     topics: ['Assembly Line', 'Quality Control', 'Welding', 'Tab Design', 'Yield']
   },
   {

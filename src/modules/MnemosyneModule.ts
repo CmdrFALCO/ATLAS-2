@@ -13,6 +13,7 @@ interface NodeEntry {
   clusterId: string;
   mesh: THREE.Mesh<THREE.SphereGeometry, THREE.MeshStandardMaterial>;
   material: THREE.MeshStandardMaterial;
+  baseColor: number;
   label: LabelEntry;
   unsubscribe: () => void;
   selected: boolean;
@@ -20,6 +21,10 @@ interface NodeEntry {
   basePosition: THREE.Vector3;
   expandedPosition: THREE.Vector3;
   needsAttention: boolean;
+  dragging: boolean;
+  dragController?: THREE.Object3D;
+  dragDistance: number;
+  dragOffset: THREE.Vector3;
 }
 
 interface EdgeEntry {
@@ -84,6 +89,17 @@ export class MnemosyneModule implements AtlasModule {
   private edges: EdgeEntry[] = [];
   private labels: LabelEntry[] = [];
   private clusters = new Map<string, ClusterEntry>();
+  private controllerHandlers: Array<{
+    controller: THREE.Object3D;
+    onSelectStart: () => void;
+    onSelectEnd: () => void;
+  }> = [];
+  private grabRaycaster = new THREE.Raycaster();
+  private grabOrigin = new THREE.Vector3();
+  private grabDirection = new THREE.Vector3();
+  private grabRotation = new THREE.Matrix4();
+  private grabPoint = new THREE.Vector3();
+  private grabTarget = new THREE.Vector3();
   private active = false;
   private pulseTime = 0;
   private activeEdge?: EdgeEntry;
@@ -104,6 +120,7 @@ export class MnemosyneModule implements AtlasModule {
     this.group = group;
 
     this.ensurePanel(context);
+    this.bindGrabControllers(context);
 
     loadMnemosyneData().then((result) => {
       if (!this.active) {
@@ -123,12 +140,16 @@ export class MnemosyneModule implements AtlasModule {
       }
     }
     for (const node of this.nodes) {
-      const cluster = this.clusters.get(node.clusterId);
-      if (!cluster) {
-        continue;
+      if (node.dragging && node.dragController) {
+        this.updateDraggedNode(node);
+      } else {
+        const cluster = this.clusters.get(node.clusterId);
+        if (!cluster) {
+          continue;
+        }
+        const target = cluster.expanded ? node.expandedPosition : node.basePosition;
+        node.mesh.position.lerp(target, 0.1);
       }
-      const target = cluster.expanded ? node.expandedPosition : node.basePosition;
-      node.mesh.position.lerp(target, 0.1);
       node.label.sprite.position.copy(node.mesh.position).add(new THREE.Vector3(0, 0.18, 0));
       this.applyNodeHighlight(node);
     }
@@ -143,6 +164,7 @@ export class MnemosyneModule implements AtlasModule {
     this.active = false;
     this.hidePanel();
     this.disposePanel();
+    this.unbindGrabControllers();
 
     for (const edge of this.edges) {
       edge.handleUnsubscribe?.();
@@ -286,12 +308,16 @@ export class MnemosyneModule implements AtlasModule {
           clusterId,
           mesh,
           material,
+          baseColor: material.color.getHex(),
           label,
           selected: false,
           hovered: false,
           basePosition,
           expandedPosition,
           needsAttention: Boolean(node.needsAttention),
+          dragging: false,
+          dragDistance: 0,
+          dragOffset: new THREE.Vector3(),
           unsubscribe: context.interaction.register(mesh, {
             onHoverStart: () => {
               entry.hovered = true;
@@ -307,7 +333,7 @@ export class MnemosyneModule implements AtlasModule {
               entry.selected = !entry.selected;
               label.sprite.visible = entry.selected || entry.hovered;
               if (!entry.needsAttention) {
-                material.color.set(entry.selected ? '#22c55e' : materialColor);
+                material.color.setHex(entry.selected ? 0x22c55e : entry.baseColor);
               }
             }
           })
@@ -442,6 +468,105 @@ export class MnemosyneModule implements AtlasModule {
     if (this.highlightEdgeId && this.scenarioTime >= this.highlightEdgeUntil) {
       this.highlightEdgeId = undefined;
     }
+  }
+
+  private bindGrabControllers(context: ModuleContext): void {
+    if (this.controllerHandlers.length > 0) {
+      return;
+    }
+    const controllers = [
+      context.renderer.xr.getController(0),
+      context.renderer.xr.getController(1)
+    ];
+    for (const controller of controllers) {
+      const onSelectStart = () => this.beginGrab(controller);
+      const onSelectEnd = () => this.endGrab(controller);
+      controller.addEventListener('selectstart', onSelectStart);
+      controller.addEventListener('selectend', onSelectEnd);
+      this.controllerHandlers.push({ controller, onSelectStart, onSelectEnd });
+    }
+  }
+
+  private unbindGrabControllers(): void {
+    for (const entry of this.controllerHandlers) {
+      entry.controller.removeEventListener('selectstart', entry.onSelectStart);
+      entry.controller.removeEventListener('selectend', entry.onSelectEnd);
+    }
+    this.controllerHandlers = [];
+  }
+
+  private beginGrab(controller: THREE.Object3D): void {
+    if (this.nodes.length === 0) {
+      return;
+    }
+    if (this.nodes.some((entry) => entry.dragController === controller)) {
+      return;
+    }
+    const hit = this.getControllerNodeHit(controller);
+    if (!hit || hit.node.dragging) {
+      return;
+    }
+    hit.node.dragging = true;
+    hit.node.dragController = controller;
+    hit.node.dragDistance = hit.distance;
+    hit.node.dragOffset.copy(hit.node.mesh.position).sub(hit.point);
+    hit.node.selected = false;
+    if (!hit.node.needsAttention) {
+      hit.node.material.color.setHex(hit.node.baseColor);
+    }
+  }
+
+  private endGrab(controller: THREE.Object3D): void {
+    const node = this.nodes.find((entry) => entry.dragController === controller);
+    if (!node) {
+      return;
+    }
+    node.dragging = false;
+    node.dragController = undefined;
+    node.dragDistance = 0;
+    node.dragOffset.set(0, 0, 0);
+    node.basePosition.copy(node.mesh.position);
+    node.expandedPosition.copy(node.mesh.position);
+  }
+
+  private getControllerNodeHit(controller: THREE.Object3D): {
+    node: NodeEntry;
+    point: THREE.Vector3;
+    distance: number;
+  } | null {
+    const meshes = this.nodes.map((entry) => entry.mesh);
+    if (meshes.length === 0) {
+      return null;
+    }
+    this.grabOrigin.setFromMatrixPosition(controller.matrixWorld);
+    this.grabRotation.extractRotation(controller.matrixWorld);
+    this.grabDirection.set(0, 0, -1).applyMatrix4(this.grabRotation).normalize();
+    this.grabRaycaster.set(this.grabOrigin, this.grabDirection);
+    const intersections = this.grabRaycaster.intersectObjects(meshes, false);
+    if (!intersections.length) {
+      return null;
+    }
+    const hit = intersections[0];
+    const node = this.nodes.find((entry) => entry.mesh === hit.object);
+    if (!node) {
+      return null;
+    }
+    this.grabPoint.copy(hit.point);
+    return { node, point: this.grabPoint, distance: hit.distance };
+  }
+
+  private updateDraggedNode(node: NodeEntry): void {
+    if (!node.dragController) {
+      return;
+    }
+    this.grabOrigin.setFromMatrixPosition(node.dragController.matrixWorld);
+    this.grabRotation.extractRotation(node.dragController.matrixWorld);
+    this.grabDirection.set(0, 0, -1).applyMatrix4(this.grabRotation).normalize();
+    this.grabTarget
+      .copy(this.grabOrigin)
+      .addScaledVector(this.grabDirection, node.dragDistance)
+      .add(node.dragOffset);
+    node.mesh.position.copy(this.grabTarget);
   }
 
   onScenarioEvent(event: ScenarioEvent): void {
